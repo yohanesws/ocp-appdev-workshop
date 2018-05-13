@@ -1,0 +1,29 @@
+:imagesdir: ./images
+:icons: font
+:toc: left
+
+= Using Web Console
+
+== Adding a Database
+Most useful applications are "stateful" or "dynamic" in some way, and this is usually achieved with a database or other data storage. 
+
+By default, this will use EmptyDir for data storage, which means if the Pod disappears the data does as well. In a real application you would use OpenShift’s persistent storage mechanism to attach real-world storage (NFS, Gluster, EBS, etc) to the Pods to give them a persistent place to store their data.
+
+For Example if we want to deploy MySQL, we can search for it in catalog like below:
+image:mysql-catalog.png[]
+
+Then we can use MySQL Ephemeral for testing:
+image:mysql-deploy.png[]
+
+Then we can check the pod is created:
+image:mysql-pod.png[]
+
+== Checking Pod Information
+
+To check Database log we can use the web console like below:
+image:mysql-info.png[]
+
+After that we can check the log:
+image:mysql-log.png[]
+
+
