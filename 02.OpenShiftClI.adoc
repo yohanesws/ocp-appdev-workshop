@@ -1,0 +1,309 @@
+:imagesdir: ./images
+:icons: font
+:toc: left
+
+= Using Openshift CLI
+
+== Container and Pod
+
+In OpenShift, the smallest deployable unit is a Pod. A Pod is a group of one or more Docker containers deployed together and guaranteed to be on the same host. From the doc:
+----
+Each pod has its own IP address, therefore owning its entire port space, and
+containers within pods can share storage. Pods can be "tagged" with one or
+more labels, which are then used to select and manage groups of pods in a
+single operation.
+----
+
+*Pod* can contain multiple Docker instances. The general idea is for a Pod to contain a "server" and any auxiliary services you want to run along with that server. Examples of containers you might put in a Pod are, an Apache HTTPD server, a log analyzer, and a file service to help manage uploaded files.
+
+== Deploying Container
+
+To deploy image can using command below:
+----
+$oc new-app <IMAGE-NAME>
+----
+
+Thus if we want deploy image that already create in previous lab the put the <IMAGE-NAME> as buildname/imagestream name, like below:
+
+----
+$oc new-app optimizecontainer --name=first-app
+--> Found image 754cd73 (About an hour old) in image stream "yohanes-demo/optimizecontainer" under tag "latest" for "optimizecontainer"
+
+    Red Hat Enterprise Linux 7 
+    -------------------------- 
+    The Red Hat Enterprise Linux Base image is designed to be a fully supported foundation for your containerized applications. This base image provides your operations and application teams with the packages, language runtimes and tools necessary to run, maintain, and troubleshoot all of your applications. This image is maintained by Red Hat and updated regularly. It is designed and engineered to be the base layer for all of your containerized applications, middleware and utilities. When used as the source for all of your containers, only one copy will ever be downloaded and cached in your production environment. Use this image just like you would a regular Red Hat Enterprise Linux distribution. Tools like yum, gzip, and bash are provided by default. For further information on how this image was built look at the /root/anacanda-ks.cfg file.
+
+    Tags: base rhel7
+
+    * This image will be deployed in deployment config "first-app"
+    * The image does not expose any ports - if you want to load balance or send traffic to this component
+      you will need to create a service with 'expose dc/first-app --port=[port]' later
+    * WARNING: Image "yohanes-demo/optimizecontainer:latest" runs as the 'root' user which may not be permitted by your cluster administrator
+
+--> Creating resources ...
+    imagestreamtag "first-app:latest" created
+    deploymentconfig "first-app" created
+--> Success
+    Run 'oc status' to view your app.
+
+----
+
+== Examine the pod
+
+You can also examine Pods from the command line:
+----
+$ oc get pod
+----
+
+You should see output that looks similar to:
+----
+$ oc get pod
+NAME                        READY     STATUS      RESTARTS   AGE
+dancer-ex-1-build           0/1       Completed   0          4h
+dancer-ex-1-ngbv5           1/1       Running     0          3h
+first-app-1-75nvk           1/1       Running     0          1m
+optimizecontainer-1-build   0/1       Completed   0          1h
+testcontainer-1-build       0/1       Completed   0          2h
+----
+
+The above output lists all of the Pods in the current Project, including the Pod name, state, restarts, and uptime. Once you have a Pod's name, you can get more information about the Pod using the oc get command. To make the output readable, we can change the output type to YAML using the following syntax:
+
+----
+$oc get pod first-app-1-75nvk -o yaml
+kind: Pod
+metadata:
+  annotations:
+    kubernetes.io/created-by: |
+      {"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicationController","namespace":"yohanes-demo","name":"first-app-1","uid":"7d5a97a0-56be-11e8-888a-02722ccca8d2","apiVersion":"v1","resourceVersion":"179865921"}}
+    kubernetes.io/limit-ranger: 'LimitRanger plugin set: cpu, memory request for container
+      first-app; cpu, memory limit for container first-app'
+    openshift.io/deployment-config.latest-version: "1"
+    openshift.io/deployment-config.name: first-app
+    openshift.io/deployment.name: first-app-1
+    openshift.io/generated-by: OpenShiftNewApp
+    openshift.io/scc: restricted
+  creationTimestamp: 2018-05-13T15:01:31Z
+  generateName: first-app-1-
+  labels:
+    app: first-app
+    deployment: first-app-1
+    deploymentconfig: first-app
+  name: first-app-1-75nvk
+....
+----
+
+Each OpenShift node that is asked to run the image has to pull (download) it if the node does not already have it cached locally. You can check on the status of the image download and deployment in the Pod details page, or from the command line with the oc get pods command that you used before.
+
+== Services
+
+Services provide a convenient abstraction layer inside OpenShift to find a group of like Pods. They also act as an internal proxy/load balancer between those Pods and anything else that needs to access them from inside the OpenShift environment. For example, if you needed more parks map servers to handle the load, you could spin up more Pods. OpenShift automatically maps them as endpoints to the Service, and the incoming requests would not notice anything different except that the Service was now doing a better job handling the requests.
+
+When you asked OpenShift to run the image, it automatically created a Service for you. Remember that services are an internal construct. They are not available to the "outside world", or anything that is outside the OpenShift environment. That’s OK, as you will learn later.
+
+The way that a Service maps to a set of Pods is via a system of Labels and Selectors. Services are assigned an eternal IP address and many ports and protocols can be mapped.
+
+Now that we understand the basics of what a Service is, let’s take a look at the Service that was created for the image that we just deployed. In order to view the Services defined in your Project, enter in the following command:
+
+----
+$ oc get services
+----
+
+You should see output similar to the following:
+----
+NAME        TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+dancer-ex   ClusterIP   172.30.49.170   <none>        8080/TCP   4h
+----
+
+You can also get more detailed information about a Service by using the following command to display the data in YAML:
+
+----
+$ oc get services dancer-ex -o yaml
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftWebConsole
+  creationTimestamp: 2018-05-13T11:01:11Z
+  labels:
+    app: dancer-ex
+  name: dancer-ex
+  namespace: yohanes-demo
+  resourceVersion: "179568189"
+  selfLink: /api/v1/namespaces/yohanes-demo/services/dancer-ex
+  uid: f29426e0-569c-11e8-888a-02722ccca8d2
+spec:
+  clusterIP: 172.30.49.170
+  ports:
+  - name: 8080-tcp
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    deploymentconfig: dancer-ex
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}
+
+----
+
+== Describe OpenShift Resource
+
+Sometime the yaml is hard to read hence we can use command below to describe any OpenShift resouce like pod, service, tec
+----
+$ oc describe pod first-app-1-75nvk
+Name:           first-app-1-75nvk
+Namespace:      yohanes-demo
+Node:           node3.rhpds.internal/192.199.0.184
+Start Time:     Sun, 13 May 2018 23:01:31 +0800
+Labels:         app=first-app
+                deployment=first-app-1
+                deploymentconfig=first-app
+Annotations:    kubernetes.io/created-by={"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicationController","namespace":"yohanes-demo","name":"first-app-1","uid":"7d5a97a0-56be-11e8-888a-0272...
+                kubernetes.io/limit-ranger=LimitRanger plugin set: cpu, memory request for container first-app; cpu, memory limit for container first-app
+                openshift.io/deployment-config.latest-version=1
+                openshift.io/deployment-config.name=first-app
+                openshift.io/deployment.name=first-app-1
+                openshift.io/generated-by=OpenShiftNewApp
+                openshift.io/scc=restricted
+Status:         Running
+IP:             10.1.15.110
+Controlled By:  ReplicationController/first-app-1
+Containers:
+  first-app:
+    Container ID:   docker://0941884798e174668cca22d842824108433f7b2a909eb9085fda04ad35e77a58
+    Image:          172.30.245.248:5000/yohanes-demo/optimizecontainer@sha256:e5a851cd070b88926395b710a297cfd8dbeef4a3dc74dcbae5ab692748ef0505
+    Image ID:       docker-pullable://172.30.245.248:5000/yohanes-demo/optimizecontainer@sha256:e5a851cd070b88926395b710a297cfd8dbeef4a3dc74dcbae5ab692748ef0505
+    Port:           <none>
+    State:          Running
+      Started:      Sun, 13 May 2018 23:01:42 +0800
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     500m
+      memory:  512Mi
+    Requests:
+      cpu:        50m
+      memory:     256Mi
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-vt56t (ro)
+Conditions:
+  Type           Status
+  Initialized    True 
+  Ready          True 
+  PodScheduled   True 
+Volumes:
+  default-token-vt56t:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-vt56t
+    Optional:    false
+QoS Class:       Burstable
+Node-Selectors:  env=users
+Tolerations:     <none>
+Events:
+  Type    Reason                 Age   From                           Message
+  ----    ------                 ----  ----                           -------
+  Normal  Scheduled              8m    default-scheduler              Successfully assigned first-app-1-75nvk to node3.rhpds.internal
+  Normal  SuccessfulMountVolume  8m    kubelet, node3.rhpds.internal  MountVolume.SetUp succeeded for volume "default-token-vt56t"
+  Normal  Pulling                8m    kubelet, node3.rhpds.internal  pulling image "172.30.245.248:5000/yohanes-demo/optimizecontainer@sha256:e5a851cd070b88926395b710a297cfd8dbeef4a3dc74dcbae5ab692748ef0505"
+  Normal  Pulled                 8m    kubelet, node3.rhpds.internal  Successfully pulled image "172.30.245.248:5000/yohanes-demo/optimizecontainer@sha256:e5a851cd070b88926395b710a297cfd8dbeef4a3dc74dcbae5ab692748ef0505"
+  Normal  Created                8m    kubelet, node3.rhpds.internal  Created container
+  Normal  Started                8m    kubelet, node3.rhpds.internal  Started container 
+
+----
+
+== Check Pod Log
+
+
+OpenShift is constructed in such a way that it expects containers to log all information to STDOUT. In this way, both regular and error information is captured via standardized Docker mechanisms. When exploring the Pod's logs directly, you are essentially going through the Docker daemon to access the container’s logs, through OpenShift’s API. Neat!
+
+For example to check pod log we can use below command:
+
+-----
+$oc logs pod/first-app-1-75nvk --follow
+test
+test
+test
+test
+test
+test
+test
+test
+test
+test
+test
+
+
+-----
+
+== Scaling and Self Healing
+
+
+Because OpenShift’s RCs are constantly monitoring to see that the desired number of Pods actually is running, you might also expect that OpenShift will "fix" the situation if it is ever not right. You would be correct!
+
+Since we have three Pods running right now, let’s see what happens if we "accidentally" kill one. Run the oc get pods command again, and choose a Pod name. Then, do the following:
+
+----
+$ oc delete pod first-app-1-75nvk
+----
+
+Then, as fast as you can, do the following:
+
+----
+$ oc get pods
+----
+
+Did you notice anything different? The names of the Pods are slightly changed. That’s because OpenShift almost immediately detected that the current state (1 Pod) didn’t match the desired state (2 Pods), and it fixed it by scheduling another Pod.
+
+Additionally, OpenShift provides rudimentary capabilities around checking the liveness and/or readiness of application instances. If the basic checks are insufficient, OpenShift also allows you to run a command inside the container in order to perform the check. That command could be a complicated script that uses any installed language.
+
+To scale pod we can use :
+
+----
+$ oc scale --replicas=2 dc/first-app
+$ oc get pod
+----
+
+== Remote Operations
+Containers are treated as immutable infrastructure and therefore it is generally not recommended to modify the content of a container through SSH or running custom commands inside the container. Nevertheless, in some use-cases, such as debugging an application, it might be beneficial to get into a container and inspect the application.
+
+To connect to pod can use below command:
+----
+$ oc rsh pod/first-app-1-mmktk
+sh-4.2$ 
+----
+
+== Forwarding Port
+You can use the CLI to forward one or more local ports to a pod. This allows you to listen on a given or random port locally, and have data forwarded to and from given ports in the pod.
+
+----
+$ oc port-forward <pod> [<local_port>:]<remote_port> [...[<local_port_n>:]<remote_port_n>]
+----
+
+For example to listen on port 8888 locally and forward to 5000 in the pod, run:
+
+----
+$ oc port-forward <pod> 8888:5000
+----
+
+== Copying File
+
+You can use the CLI to copy local files to or from a remote directory in a container. This is a useful tool for copying database archives to and from your pods for backup and restore purposes. It can also be used to copy source code changes into a running pod for development debugging, when the running pod supports hot reload of source files.
+
+----
+$ oc rsync <source> <destination> [-c <container>]
+----
+
+For example, to copy a local directory to a pod directory:
+
+----
+$ oc rsync /home/user/source devpod1234:/src
+----
+
+Or copy to local directory:
+
+----
+$ oc rsync devpod1234:/src /home/user/source
+----
+
