@@ -132,7 +132,7 @@ Now the application is already deployed then we can try to expose the service th
 ----
 $ oc expose service myjavaapps
 route "myjavaapps" exposed
-oc get route
+$ oc get route
 NAME         HOST/PORT                                                  PATH      SERVICES     PORT       TERMINATION   WILDCARD
 cakephp-ex   cakephp-ex-yohanes-demo.apps.rhpds.openshift.opentlc.com             cakephp-ex   8080-tcp                 None
                None
