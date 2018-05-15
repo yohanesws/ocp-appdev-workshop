@@ -1,0 +1,10 @@
+= Onboarding Training
+
+== Lab Directory
+
+* link:01.DockerBuild.html[Lab 01 Docker Build]
+* link:02.OpenShiftClI.html[Lab 02 Openshift CLI]
+* link:03.OpenshiftWebConsole.html[Lab 03 Web Console]
+* link:04.S2IBuild.html[Lab 04 S2I Build]
+* link:05.BinaryBuild.html[Lab 05 Binary Build]
+* link:06.BuildUsingCLI.html[Lab 06 S2I with CLI]
