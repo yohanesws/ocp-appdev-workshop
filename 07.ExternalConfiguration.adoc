@@ -1,0 +1,172 @@
+:imagesdir: ./images
+:icons: font
+:toc: left
+
+= Externalize Configuration
+
+In OpenShift, applications can be deployed by combining application builds with their configuration data at runtime. In this section, you use environment variables and ConfigMaps to inject application configuration information into your application at deployment time.
+
+== Create Application
+
+. Deploy Application
+. Review the application from route
+-----
+$ oc new-app https://github.com/yohanesws/PrintEnv
+$ oc expose svc printenv
+$ oc get route printenv --template='{{ .spec.host }}'
+-----
+_you can also deploy using web console with nodejs as builder image_
+
+== Using ConfigMaps
+
+=== Use Environment Variables
+
+. Set and unset the environment variables.
+. After the application redeploys, use browser or curl to verify that they are set or deleted successfully.
+. Set up two environment variables:
+-----
+$ oc set env dc/printenv APP_VAR_1=Value1 APP_VAR_2=Value2
+$ oc set env dc/printenv APP_VAR_2-
+-----
+_you can also add using web console from application -> deployment -> printenv -> environment
+
+=== Create and Update ConfigMap
+. Create a ConfigMap with two environment variables:
++
+-----
+$ oc create configmap printenv-config \
+    --from-literal=APP_VAR_3=Value3 \
+    --from-literal=APP_VAR_4=Value4
+-----
+_you can create through web console resource -> configmaps -> create_
++
+. Update the printenv deployment configuration for the application using web console or cmd
++
+-----
+$ oc set env --from=configmap/printenv-config --prefix=MY_ dc/printenv
+-----
++
+. When the application finishes the deployment, use curl or browser to verify success.
+
+=== Return Environment as Text File
+
+. Set an environment variable to read from the file:
++
+------
+$ oc set env dc/printenv READ_FROM_FILE=/data/configfile.txt
+------
++
+. Create a configuration file:
++
+-----
+$ echo "This is Wolfgang's Config File" > configfile.txt
+$ oc create configmap printenv-config-file --from-file=configfile.txt
+$ oc set volume dc/printenv --add --overwrite --name=config-volume -m /data/ -t configmap --configmap-name=printenv-config-file
+-----
++
+. Find running pods
++
+-----
+$ oc get pods
+NAME               READY     STATUS      RESTARTS   AGE
+printenv-1-build   0/1       Completed   0          12m
+printenv-5-xqgsl   1/1       Running     0          4m
+-----
++
+
+. Open a shell in the running pod—in the sample output above, it is called printenv-5-xqgsl—and check for the existence and correct contents of the configuration file:
++
+-----
+$ oc rsh printenv-5-xqgsl
+
+sh-4.2$ ls /data/configfile.txt
+/data/configfile.txt
+
+sh-4.2$ cat /data/configfile.txt
+This is Wolfgang's Config File
+-----
++
+
+== Using Secret
+
+=== Add Secret Using Environment Variables
+
+. Create a secret from a file:
++
+-----
+$ echo 'r3dh4t1!' > ./password.txt
+$ echo 'admin' > ./user.txt
+$ oc secret new printenv-secret app_user=user.txt app_password=password.txt
+$ oc describe secrets printenv-secret
+-----
++
+
+. Validate the secret:
++
+-----
+$ oc get secret printenv-secret -o yaml
+apiVersion: v1
+data:
+  app_password: cjNkaDR0MSEK
+  app_user: YWRtaW4K
+kind: Secret
+[...]
+-----
++
+
+. Add the secret to the printenv application:
++
+-----
+$ oc env dc/printenv --from=secret/printenv-secret
+-----
++
+
+. Verify the correct values of the environment variables:
++
+-----
+# deploymentconfigs printenv, container printenv
+APP_VAR_1=Value1
+# APP_VAR_3 from configmap printenv-config, key APP_VAR_3
+# APP_VAR_4 from configmap printenv-config, key APP_VAR_4
+# APP_PASSWORD from secret printenv-secret, key app_password
+# APP_USER from secret printenv-secret, key app_user
+-----
++
+
+. Set the same secrets for the MySQL database by adding the MYSQL_ prefix:
++
+-----
+$ oc env dc/printenv --from=secret/printenv-secret --prefix=MYSQL_
+$ oc env dc/printenv --list
+# deploymentconfigs printenv, container printenv
+APP_VAR_1=Value1
+# APP_VAR_3 from configmap printenv-config, key APP_VAR_3
+# APP_VAR_4 from configmap printenv-config, key APP_VAR_4
+READ_FROM_FILE=/data/configfile.txt
+# APP_PASSWORD from secret printenv-secret, key app_password
+# APP_USER from secret printenv-secret, key app_user
+# MYSQL_APP_PASSWORD from secret printenv-secret, key app_password
+# MYSQL_APP_USER from secret printenv-secret, key app_user
+-----
++
+
+=== Add Secret Using Volume Mount
+
+. Create a database configuration consisting of a user ID, password, and database URL:
++
+-----
+$ echo 'r3dh4t1!' > ./dbpassword.txt
+$ echo 'admin' > ./dbuser.txt
+$ echo 'http://postgresql:5432' > ./dburl.txt
+$ oc secret new printenv-db-secret app_db_user=user.txt app_db_password=password.txt app_db_url=dburl.txt
+-----
++
+
+. Mount the new database secret as a volume into the printenv deployment configuration and set the READ_FROM_FILE variable to point to the app_db_url file in that volume:
++
+-----
+$ oc set volume dc/printenv --add --overwrite --name=db-config-volume -m /dbconfig/ --secret-name=printenv-db-secret
+$ oc set env dc/printenv READ_FROM_FILE=/dbconfig/app_db_url
+-----
+_Note that the name app_db_url is the name of the secret, not the original file name._
++

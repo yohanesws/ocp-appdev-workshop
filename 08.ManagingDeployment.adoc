@@ -1,0 +1,25 @@
+:imagesdir: ./images
+:icons: font
+:toc: left
+
+= Managing Deployment
+
+== Explore Rolling Deployment Strategy
+
+When OpenShift is configured to use the rolling deployment strategy, updates to an application occur gradually without incurring any application downtime. OpenShift creates a new replication controller for the new version of the application and then gradually scales up the new replication controller while scaling down the old replication controller. This process continues until the new replication controller reaches the desired number of pods and the old replication controller reaches zero pods.
+
+You use this deployment strategy when your application can tolerate two versions of code running at the same time. This typically requires that your application handle N-1 compatibility—that is, data stored by the later version can be read and handled, or gracefully ignored, by the earlier version of the code. This can take many forms: data stored on disk, in a database, in a temporary cache, or in a user’s browser session. While most web applications can support rolling deployments, it is important to test and design your application to handle this strategy.
+
+image:deployment.png[]
+image:deployment-edit.png[]
+image:deployment-strategy.png[]
+
+After change please press deploy and see what the result.
+
+== Explore Recreate Deployment Strategy
+
+When OpenShift is configured to use the recreate deployment strategy, updates to an application or service occur in discrete stages. OpenShift scales all replicas of an application down to zero, then scales these replicas back up to full.
+
+You use the recreate deployment strategy when your application cannot tolerate two versions of code running simultaneously. In this section, you watch OpenShift update an application using the recreate deployment strategy.
+
+Please do above step and change to recreate, deploy and see the result.
