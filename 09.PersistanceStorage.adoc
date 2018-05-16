@@ -1,0 +1,29 @@
+:imagesdir: ./images
+:icons: font
+:toc: left
+
+= Using Persistance
+
+== Create the Storage
+
+To create storage just open storage menu like below:
+
+image:storage-menu.png[]
+
+Then Create the storage:
+
+image:create-storage.png[]
+
+
+
+*!!!!! BEWARE IF YOU DELETE THE STORAGE OR THE PROJECT THEN THERE A CHANCE THAT YOUR DATA ALSO GONE, PLEASE INFORM OCP ADMINISTRATOR IF YOU WANT TO RETAIN THE DATA EVEN STORAGE OR PROJECT IS DELETED*
+
+== Attach the Storage
+
+To attach in deployed application go to Application -> Deployment and choose your deployment config like below:
+
+image:deployment-storage.png[]
+
+And you can configure and choose the storage like below:
+
+image:attach-storage.png[]

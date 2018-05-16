@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.2">
-<title>Onboarding Training</title>
+<title>Using Persistance</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -424,52 +424,61 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 .hide-for-print{display:none!important}
 .show-for-print{display:inherit!important}}
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
 </head>
-<body class="article">
+<body class="article toc2 toc-left">
 <div id="header">
-<h1>Onboarding Training</h1>
+<h1>Using Persistance</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_create_the_storage">Create the Storage</a></li>
+<li><a href="#_attach_the_storage">Attach the Storage</a></li>
+</ul>
+</div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_lab_directory">Lab Directory</h2>
+<h2 id="_create_the_storage">Create the Storage</h2>
 <div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p><a href="01.DockerBuild.html">Lab 01 Docker Build</a></p>
-</li>
-<li>
-<p><a href="02.OpenShiftClI.html">Lab 02 Openshift CLI</a></p>
-</li>
-<li>
-<p><a href="03.OpenshiftWebConsole.html">Lab 03 Web Console</a></p>
-</li>
-<li>
-<p><a href="04.S2IBuild.html">Lab 04 S2I Build</a></p>
-</li>
-<li>
-<p><a href="05.BinaryBuild.html">Lab 05 Binary Build</a></p>
-</li>
-<li>
-<p><a href="06.BuildUsingCLI.html">Lab 06 S2I with CLI</a></p>
-</li>
-<li>
-<p><a href="07.ExternalConfiguration.html">Lab 07 External Configuration</a></p>
-</li>
-<li>
-<p><a href="08.ManagingDeployment.html">Lab 08 Managing Deployment</a></p>
-</li>
-<li>
-<p><a href="09.PersistanceStorage.html">Lab 06 S2I with CLI</a></p>
-</li>
-</ul>
+<div class="paragraph">
+<p>To create storage just open storage menu like below:</p>
+</div>
+<div class="paragraph">
+<p><span class="image"><img src="./images/storage-menu.png" alt="storage menu"></span></p>
+</div>
+<div class="paragraph">
+<p>Then Create the storage:</p>
+</div>
+<div class="paragraph">
+<p><span class="image"><img src="./images/create-storage.png" alt="create storage"></span></p>
+</div>
+<div class="paragraph">
+<p><strong>!!!!! BEWARE IF YOU DELETE THE STORAGE OR THE PROJECT THEN THERE A CHANCE THAT YOUR DATA ALSO GONE, PLEASE INFORM OCP ADMINISTRATOR IF YOU WANT TO RETAIN THE DATA EVEN STORAGE OR PROJECT IS DELETED</strong></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_attach_the_storage">Attach the Storage</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To attach in deployed application go to Application &#8594; Deployment and choose your deployment config like below:</p>
+</div>
+<div class="paragraph">
+<p><span class="image"><img src="./images/deployment-storage.png" alt="deployment storage"></span></p>
+</div>
+<div class="paragraph">
+<p>And you can configure and choose the storage like below:</p>
+</div>
+<div class="paragraph">
+<p><span class="image"><img src="./images/attach-storage.png" alt="attach storage"></span></p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-05-16 14:32:43 +08
+Last updated 2018-05-16 14:32:18 +08
 </div>
 </div>
 </body>

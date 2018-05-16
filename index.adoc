@@ -8,3 +8,6 @@
 * link:04.S2IBuild.html[Lab 04 S2I Build]
 * link:05.BinaryBuild.html[Lab 05 Binary Build]
 * link:06.BuildUsingCLI.html[Lab 06 S2I with CLI]
+* link:07.ExternalConfiguration.html[Lab 07 External Configuration]
+* link:08.ManagingDeployment.html[Lab 08 Managing Deployment]
+* link:09.PersistanceStorage.html[Lab 06 S2I with CLI]

@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.2">
-<title>Onboarding Training</title>
+<title>Binary Build</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -424,52 +424,215 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 .hide-for-print{display:none!important}
 .show-for-print{display:inherit!important}}
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
 </head>
-<body class="article">
+<body class="article toc2 toc-left">
 <div id="header">
-<h1>Onboarding Training</h1>
+<h1>Binary Build</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_preparation">Preparation</a></li>
+<li><a href="#_creating_openshift_build">Creating OpenShift Build</a></li>
+<li><a href="#_start_openshift_build">Start OpenShift Build</a></li>
+<li><a href="#_deploy_the_application">Deploy the Application</a></li>
+<li><a href="#_create_route">Create Route</a></li>
+</ul>
+</div>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="_lab_directory">Lab Directory</h2>
+<div id="preamble">
 <div class="sectionbody">
+<div class="paragraph">
+<p>There a time when we can&#8217;t deploy the source code like in Java Application for some case we only have executable binary. Thus, how we can deploy this kind of application in OCP? Worry not in OCP we have feature called Binary To Image.</p>
+</div>
+<div class="paragraph">
+<p>For example we have below artifact:</p>
+</div>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="01.DockerBuild.html">Lab 01 Docker Build</a></p>
+<p><a href="asset\binary\undertow-servlet.jar">An Executable Jar file</a></p>
 </li>
 <li>
-<p><a href="02.OpenShiftClI.html">Lab 02 Openshift CLI</a></p>
+<p>An OpenShift Environment running 3.1.1 or later</p>
 </li>
 <li>
-<p><a href="03.OpenshiftWebConsole.html">Lab 03 Web Console</a></p>
-</li>
-<li>
-<p><a href="04.S2IBuild.html">Lab 04 S2I Build</a></p>
-</li>
-<li>
-<p><a href="05.BinaryBuild.html">Lab 05 Binary Build</a></p>
-</li>
-<li>
-<p><a href="06.BuildUsingCLI.html">Lab 06 S2I with CLI</a></p>
-</li>
-<li>
-<p><a href="07.ExternalConfiguration.html">Lab 07 External Configuration</a></p>
-</li>
-<li>
-<p><a href="08.ManagingDeployment.html">Lab 08 Managing Deployment</a></p>
-</li>
-<li>
-<p><a href="09.PersistanceStorage.html">Lab 06 S2I with CLI</a></p>
+<p>The oc (OpenShift Client) utility</p>
 </li>
 </ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_preparation">Preparation</h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Download the jar file <a href="asset\binary\undertow-servlet.jar">here</a></p>
+</li>
+<li>
+<p>Save it to location you choose for example /home/openshift/binary</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_creating_openshift_build">Creating OpenShift Build</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>We need create build for handle openshift binary build with Red Hat OpenJDK xPaaS image as builder</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ oc login &lt;OPENSHIFT_URL&gt;
+$  oc new-build redhat-openjdk18-openshift:1.2 --name=myjavaapps --binary
+--&gt; Found image 56cfa0a (3 months old) in image stream "openshift/redhat-openjdk18-openshift" under tag "1.2" for "redhat-openjdk18-openshift:1.2"
+
+    Java Applications
+    -----------------
+    Platform for building and running plain Java applications (fat-jar and flat classpath)
+
+    Tags: builder, java
+
+    * A source build using binary input will be created
+      * The resulting image will be pushed to image stream "myjavaapps:latest"
+      * A binary build was created, use 'start-build --from-dir' to trigger a new build
+
+--&gt; Creating resources with label build=myjavaapps ...
+    imagestream "myjavaapps" created
+    buildconfig "myjavaapps" created
+--&gt; Success</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Notice what OpenShift did with our request It created  an imagestream and a buildconfig object, both named myjavaapps. The imagestream will track the new images that get built as part of this new build process, and the buildconfig contains all the instructions that tell OpenShift how to build my app.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_start_openshift_build">Start OpenShift Build</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Now we can kick off my build by pointing the oc client at my local project directory.
+The command to do that is</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>oc start-build &lt;buildconfig-name&gt; --from-dir=&lt;dir-path&gt;.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Before we run it though, we want to walk through a few parameters we are going to use. First off, we know that my &lt;buildconfig-name&gt; will be myjavaapps and the &lt;file-path&gt; will be my current warfile-demo directory.</p>
+</div>
+<div class="paragraph">
+<p>If we run that command as-is (i.e. oc start-build myjavaapps --from-dir=.) then a build will kick-off, the command will exit, and the build will run in the background. However, in this instance, I would prefer to actually follow the status of the build. To do that, we are going to add the --follow=true (follow the logs of the build) and --wait=true (wait until the build completes to return an exit code).</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ oc start-build myjavaapps --from-file=asset/binary/undertow-servlet.jar  --follow=true --wait
+Uploading file "asset/binary/undertow-servlet.jar" as binary input for the build ...
+build "myjavaapps-1" started
+Receiving source from STDIN as file undertow-servlet.jar
+==================================================================
+Starting S2I Java Build .....
+S2I source build with plain binaries detected
+Copying binaries from /tmp/src to /deployments ...
+... done
+Pushing image 172.30.245.248:5000/yohanes-demo/myjavaapps:latest ...
+Pushed 0/6 layers, 2% complete
+Pushed 1/6 layers, 26% complete
+Pushed 2/6 layers, 43% complete
+Pushed 3/6 layers, 57% complete
+Pushed 4/6 layers, 76% complete
+Pushed 5/6 layers, 93% complete
+Pushed 6/6 layers, 100% complete
+Push successful</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_deploy_the_application">Deploy the Application</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Now that we have my application image built, we can deploy it. This is very simple. we just run the <strong>oc new-app</strong> command and specify my ImageStream, myjavaapps.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ oc new-app myjavaapps
+--&gt; Found image f1bc290 (2 minutes old) in image stream "yohanes-demo/myjavaapps" under tag "latest" for "myjavaapps"
+
+    yohanes-demo/myjavaapps-1:d8140b71
+    ----------------------------------
+    Platform for building and running plain Java applications (fat-jar and flat classpath)
+
+    Tags: builder, java
+
+    * This image will be deployed in deployment config "myjavaapps"
+    * Ports 8080/tcp, 8443/tcp, 8778/tcp will be load balanced by service "myjavaapps"
+      * Other containers can access this service through the hostname "myjavaapps"
+
+--&gt; Creating resources ...
+    deploymentconfig "myjavaapps" created
+    service "myjavaapps" created
+--&gt; Success
+    Application is not exposed. You can expose services to the outside world by executing one or more of the commands below:
+     'oc expose svc/myjavaapps'
+    Run 'oc status' to view your app.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can check the status here:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ oc status
+In project yohanes-demo on server https://master.rhpds.openshift.opentlc.com:443
+
+http://cakephp-ex-yohanes-demo.apps.rhpds.openshift.opentlc.com to pod port 8080-tcp (svc/cakephp-ex)
+  dc/cakephp-ex deploys istag/cakephp-ex:latest &lt;-
+    bc/cakephp-ex source builds https://github.com/openshift/cakephp-ex.git#master on openshift/php:7.0
+    deployment #2 deployed 7 hours ago - 1 pod
+    deployment #1 failed 7 hours ago: newer deployment was found running
+
+svc/myjavaapps - 172.30.12.188 ports 8080, 8443, 8778
+  dc/myjavaapps deploys istag/myjavaapps:latest &lt;-
+    bc/myjavaapps source builds uploaded code on openshift/redhat-openjdk18-openshift:1.2
+    deployment #1 deployed 18 seconds ago - 1 pod</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_create_route">Create Route</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Now the application is already deployed then we can try to expose the service through Route using command below:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ oc expose service myjavaapps
+route "myjavaapps" exposed
+$ oc get route
+NAME         HOST/PORT                                                  PATH      SERVICES     PORT       TERMINATION   WILDCARD
+cakephp-ex   cakephp-ex-yohanes-demo.apps.rhpds.openshift.opentlc.com             cakephp-ex   8080-tcp                 None
+               None
+myjavaapps   myjavaapps-yohanes-demo.apps.rhpds.openshift.opentlc.com             myjavaapps   8080-tcp                 None
+                None</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As we can see here, the oc expose command creates me a route with a hostname. This hostname is resolvable and accessible to me which means that we can now pull up <a href="http://myjavaapps-yohanes-demo.apps.rhpds.openshift.opentlc.com" class="bare">http://myjavaapps-yohanes-demo.apps.rhpds.openshift.opentlc.com</a> in my browser.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-05-16 14:32:43 +08
+Last updated 2018-05-14 21:09:05 +08
 </div>
 </div>
 </body>

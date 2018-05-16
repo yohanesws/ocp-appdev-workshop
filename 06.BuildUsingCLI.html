@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.2">
-<title>Onboarding Training</title>
+<title>Openshift S2I with CLI</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -424,52 +424,309 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 .hide-for-print{display:none!important}
 .show-for-print{display:inherit!important}}
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
 </head>
-<body class="article">
+<body class="article toc2 toc-left">
 <div id="header">
-<h1>Onboarding Training</h1>
-</div>
-<div id="content">
-<div class="sect1">
-<h2 id="_lab_directory">Lab Directory</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p><a href="01.DockerBuild.html">Lab 01 Docker Build</a></p>
+<h1>Openshift S2I with CLI</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_create_python_application">Create Python Application</a>
+<ul class="sectlevel2">
+<li><a href="#_review_application_code">Review application code</a></li>
+<li><a href="#_find_image_builder">Find Image Builder</a></li>
+</ul>
 </li>
-<li>
-<p><a href="02.OpenShiftClI.html">Lab 02 Openshift CLI</a></p>
-</li>
-<li>
-<p><a href="03.OpenshiftWebConsole.html">Lab 03 Web Console</a></p>
-</li>
-<li>
-<p><a href="04.S2IBuild.html">Lab 04 S2I Build</a></p>
-</li>
-<li>
-<p><a href="05.BinaryBuild.html">Lab 05 Binary Build</a></p>
-</li>
-<li>
-<p><a href="06.BuildUsingCLI.html">Lab 06 S2I with CLI</a></p>
-</li>
-<li>
-<p><a href="07.ExternalConfiguration.html">Lab 07 External Configuration</a></p>
-</li>
-<li>
-<p><a href="08.ManagingDeployment.html">Lab 08 Managing Deployment</a></p>
-</li>
-<li>
-<p><a href="09.PersistanceStorage.html">Lab 06 S2I with CLI</a></p>
+<li><a href="#_deploy_python_application">Deploy Python Application</a>
+<ul class="sectlevel2">
+<li><a href="#_create_build_and_deploy">Create Build and Deploy</a></li>
+<li><a href="#_check_and_review_the_application">Check and Review the Application</a></li>
+<li><a href="#_create_route">Create Route</a></li>
+</ul>
 </li>
 </ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Before we already learn how to deploy source to image using web console. However, same goal can be achieve also using openshift CLI</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_create_python_application">Create Python Application</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_review_application_code">Review application code</h3>
+<div class="paragraph">
+<p>Open git repository <a href="https://github.com/openshift/django-ex.git" class="bare">https://github.com/openshift/django-ex.git</a> to review the code what is build and deploy to openshift</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_find_image_builder">Find Image Builder</h3>
+<div class="paragraph">
+<p>To find the correct builder for python we can use below command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ oc get is -n openshift</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We will get result similiar like below:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>NAME                                  DOCKER REPO                                                         TAGS                            UPDATED
+dotnet                                172.30.245.248:5000/openshift/dotnet                                1.0,1.1,2.0 + 1 more...         2 months ago
+dotnet-runtime                        172.30.245.248:5000/openshift/dotnet-runtime                        2.0,latest                      2 months ago
+fis-java-openshift                    registry.access.redhat.com/jboss-fuse-6/fis-java-openshift          latest,2.0,2.0-15 + 3 more...   2 months ago
+fis-karaf-openshift                   registry.access.redhat.com/jboss-fuse-6/fis-karaf-openshift         2.0,2.0-15,latest + 3 more...   2 months ago
+httpd                                 172.30.245.248:5000/openshift/httpd                                 2.4,latest                      2 months ago
+jboss-amq-62                          172.30.245.248:5000/openshift/jboss-amq-62                          1.1,1.2,1.3 + 3 more...         5 months ago
+jboss-amq-63                          172.30.245.248:5000/openshift/jboss-amq-63                          1.0,1.1,1.2                     5 months ago
+jboss-datagrid65-client-openshift     172.30.245.248:5000/openshift/jboss-datagrid65-client-openshift     1.1,1.0                         5 months ago
+jboss-datagrid65-openshift            172.30.245.248:5000/openshift/jboss-datagrid65-openshift            1.4,1.5,1.2 + 1 more...         5 months ago
+jboss-datagrid71-client-openshift     172.30.245.248:5000/openshift/jboss-datagrid71-client-openshift     1.0                             5 months ago
+jboss-datagrid71-openshift            172.30.245.248:5000/openshift/jboss-datagrid71-openshift            1.0,1.1                         5 months ago
+jboss-datavirt63-driver-openshift     172.30.245.248:5000/openshift/jboss-datavirt63-driver-openshift     1.0,1.1                         5 months ago
+jboss-datavirt63-openshift            172.30.245.248:5000/openshift/jboss-datavirt63-openshift            1.0,1.1,1.2 + 1 more...         5 months ago
+jboss-decisionserver62-openshift      172.30.245.248:5000/openshift/jboss-decisionserver62-openshift      1.2                             5 months ago
+jboss-decisionserver63-openshift      172.30.245.248:5000/openshift/jboss-decisionserver63-openshift      1.3,1.4                         5 months ago
+jboss-decisionserver64-openshift      172.30.245.248:5000/openshift/jboss-decisionserver64-openshift      1.0,1.1                         5 months ago
+jboss-eap64-openshift                 172.30.245.248:5000/openshift/jboss-eap64-openshift                 1.3,1.4,1.5 + 3 more...         2 months ago
+jboss-eap70-openshift                 172.30.245.248:5000/openshift/jboss-eap70-openshift                 1.6,1.3,1.4 + 1 more...         2 months ago
+jboss-eap71-openshift                 172.30.245.248:5000/openshift/jboss-eap71-openshift                 1.0-TP,TP                       5 months ago
+jboss-processserver63-openshift       172.30.245.248:5000/openshift/jboss-processserver63-openshift       1.3,1.4                         5 months ago
+jboss-processserver64-openshift       172.30.245.248:5000/openshift/jboss-processserver64-openshift       1.0,1.1                         5 months ago
+jboss-webserver30-tomcat7-openshift   172.30.245.248:5000/openshift/jboss-webserver30-tomcat7-openshift   1.1,1.2,1.3                     5 months ago
+jboss-webserver30-tomcat8-openshift   172.30.245.248:5000/openshift/jboss-webserver30-tomcat8-openshift   1.1,1.2,1.3                     5 months ago
+jboss-webserver31-tomcat7-openshift   172.30.245.248:5000/openshift/jboss-webserver31-tomcat7-openshift   1.1,1.0                         2 months ago
+jboss-webserver31-tomcat8-openshift   172.30.245.248:5000/openshift/jboss-webserver31-tomcat8-openshift   1.1,1.0                         2 months ago
+jenkins                               172.30.245.248:5000/openshift/jenkins                               latest,v3.7,1 + 4 more...       2 weeks ago
+mariadb                               172.30.245.248:5000/openshift/mariadb                               10.1,latest                     2 months ago
+mongodb                               172.30.245.248:5000/openshift/mongodb                               2.6,3.2,latest + 1 more...      2 months ago
+mysql                                 172.30.245.248:5000/openshift/mysql                                 latest,5.6,5.7 + 1 more...      2 months ago
+nodejs                                172.30.245.248:5000/openshift/nodejs                                6,latest,4 + 1 more...          2 months ago
+ose-recycler                          172.30.245.248:5000/openshift/ose-recycler                          v3.6,latest,v3.3 + 2 more...    5 months ago
+perl                                  172.30.245.248:5000/openshift/perl                                  latest,5.20,5.24 + 1 more...    2 months ago
+php                                   172.30.245.248:5000/openshift/php                                   7.0,latest,5.6 + 1 more...      2 months ago
+postgresql                            172.30.245.248:5000/openshift/postgresql                            9.4,9.5,latest + 1 more...      2 months ago
+python                                172.30.245.248:5000/openshift/python                                3.4,3.5,latest + 2 more...      2 months ago
+redhat-openjdk18-openshift            172.30.245.248:5000/openshift/redhat-openjdk18-openshift            1.2,1.0,1.1                     2 months ago
+redhat-sso70-openshift                172.30.245.248:5000/openshift/redhat-sso70-openshift                1.3,1.4                         5 months ago
+redhat-sso71-openshift                172.30.245.248:5000/openshift/redhat-sso71-openshift                1.0,1.1,1.2                     5 months ago
+redis                                 172.30.245.248:5000/openshift/redis                                 3.2,latest                      2 months ago
+ruby                                  172.30.245.248:5000/openshift/ruby                                  2.2,2.3,2.4 + 2 more...         2 months ago</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We will have lot of builder that can be choosen. Moreover, for example we want to deploy python application we find there python builder with several version that can be choose. To descriibe more about the builder we can use below command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ oc describe is python -n openshift</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>and detail describtion for python builder can be check here:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>ame:			python
+Namespace:		openshift
+Created:		5 months ago
+Labels:			&lt;none&gt;
+Annotations:		openshift.io/display-name=Python
+			openshift.io/image.dockerRepositoryCheck=2018-02-22T12:17:35Z
+Docker Pull Spec:	172.30.245.248:5000/openshift/python
+Image Lookup:		local=false
+Unique Images:		7
+Tags:			5
+
+3.5 (latest)
+  tagged from registry.access.redhat.com/rhscl/python-35-rhel7:latest
+
+  Build and run Python 3.5 applications on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/s2i-python-container/blob/master/3.5/README.md.
+  Tags: builder, python
+  Supports: python:3.5, python
+  Example Repo: https://github.com/openshift/django-ex.git
+
+  * registry.access.redhat.com/rhscl/python-35-rhel7@sha256:27ce32b0855dea7b078048064b72e1554069ec737ef3398fa740cc72ec82ddb9
+      2 months ago
+    registry.access.redhat.com/rhscl/python-35-rhel7@sha256:b6a0b374557448025afc592959254610f402434730d4f3616d3bf081e50f8453
+      5 months ago
+
+3.4
+  tagged from registry.access.redhat.com/rhscl/python-34-rhel7:latest
+
+  Build and run Python 3.4 applications on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/s2i-python-container/blob/master/3.4/README.md.
+  Tags: builder, python
+  Supports: python:3.4, python
+  Example Repo: https://github.com/openshift/django-ex.git
+
+  * registry.access.redhat.com/rhscl/python-34-rhel7@sha256:0677366367b1f1a736bdb50b926559c1bdeed02de1bce477f8fe7ed53336a572
+      2 months ago
+    registry.access.redhat.com/rhscl/python-34-rhel7@sha256:707619b89710f79ba7b60d522cf157229f06b63c1cd780f164d09a8c5fa8fd94
+      5 months ago
+
+3.3
+  tagged from registry.access.redhat.com/openshift3/python-33-rhel7:latest
+
+  Build and run Python 3.3 applications on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/s2i-python-container/blob/master/3.3/README.md.
+  Tags: hidden, builder, python
+  Supports: python:3.3, python
+  Example Repo: https://github.com/openshift/django-ex.git
+
+  * registry.access.redhat.com/openshift3/python-33-rhel7@sha256:10f52e526d723e970e06334b0590753747f222437af3e7f6fa1311a71088573e
+      5 months ago
+
+2.7
+  tagged from registry.access.redhat.com/rhscl/python-27-rhel7:latest
+
+  Build and run Python 2.7 applications on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/s2i-python-container/blob/master/2.7/README.md.
+  Tags: builder, python
+  Supports: python:2.7, python
+  Example Repo: https://github.com/openshift/django-ex.git
+
+  * registry.access.redhat.com/rhscl/python-27-rhel7@sha256:aabc9d170a0cf327d55890e30b1627210c964012c4b301d297191e0c06ad5fac
+      2 months ago
+    registry.access.redhat.com/rhscl/python-27-rhel7@sha256:05465c8a41527fa8a4f81606a4f43d105a3e83df386feac7fda47b3491b09a0e
+      5 months ago</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Another way for search like web console catalog is using below command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ oc new-app --search python
+Image streams (oc new-app --image-stream=&lt;image-stream&gt; [--code=&lt;source&gt;])
+----
+python
+  Project: openshift
+  Tags:    2.7, 3.4, 3.5, latest
+
+Docker images (oc new-app --docker-image=&lt;docker-image&gt; [--code=&lt;source&gt;])
+----
+python
+  Registry: Docker Hub
+  Tags:     latest</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_deploy_python_application">Deploy Python Application</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_create_build_and_deploy">Create Build and Deploy</h3>
+<div class="paragraph">
+<p>To create build and deploy in same time we can use <strong>oc new-app</strong> command like below:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ oc new-app openshift/python:3.5~https://github.com/openshift/django-ex.git --name=mypythonapps
+--&gt; Found image 03fdd4e (3 months old) in image stream "openshift/python" under tag "3.5" for "openshift/python:3.5"
+
+    Python 3.5
+    ----------
+    Python 3.5 available as docker container is a base platform for building and running various Python 3.5 applications and frameworks. Python is an easy to learn, powerful programming language. It has efficient high-level data structures and a simple but effective approach to object-oriented programming. Python's elegant syntax and dynamic typing, together with its interpreted nature, make it an ideal language for scripting and rapid application development in many areas on most platforms.
+
+    Tags: builder, python, python35, rh-python35
+
+    * A source build using source code from https://github.com/openshift/django-ex.git will be created
+      * The resulting image will be pushed to image stream "mypythonapps:latest"
+      * Use 'start-build' to trigger a new build
+    * This image will be deployed in deployment config "mypythonapps"
+    * Port 8080/tcp will be load balanced by service "mypythonapps"
+      * Other containers can access this service through the hostname "mypythonapps"
+
+--&gt; Creating resources ...
+    imagestream "mypythonapps" created
+    buildconfig "mypythonapps" created
+    deploymentconfig "mypythonapps" created
+    service "mypythonapps" created
+--&gt; Success
+    Build scheduled, use 'oc logs -f bc/mypythonapps' to track its progress.
+    Application is not exposed. You can expose services to the outside world by executing one or more of the commands below:
+     'oc expose svc/mypythonapps'
+    Run 'oc status' to view your app.</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_check_and_review_the_application">Check and Review the Application</h3>
+<div class="paragraph">
+<p>We can check the status build and deployment here:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ oc status
+svc/mypythonapps - 172.30.198.189:8080
+  dc/mypythonapps deploys istag/mypythonapps:latest &lt;-
+    bc/mypythonapps source builds https://github.com/openshift/django-ex.git on openshift/python:3.5
+      build #1 running for about a minute - 37f7fc4: Merge pull request #115 from hhorak/python-3.6 (Honza Horak &lt;hhorak@redhat.com&gt;)
+    deployment #1 waiting on image or update</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We know that build is started and we can check the build log here:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ oc logs bc/mypythonapps
+Cloning "https://github.com/openshift/django-ex.git" ...
+	Commit:	37f7fc41432b9c07265c5896a4fb226caa870427 (Merge pull request #115 from hhorak/python-3.6)
+	Author:	Honza Horak &lt;hhorak@redhat.com&gt;
+	Date:	Tue Apr 24 18:48:25 2018 +0200
+---&gt; Installing application source ...
+---&gt; Installing dependencies ...
+.....
+Post-processed 'debug_toolbar/css/toolbar.css' as 'debug_toolbar/css/toolbar.b35523ea26ab.css'
+Post-processed 'admin/css/dashboard.css' as 'admin/css/dashboard.7ac78187c567.css'
+78 static files copied to '/opt/app-root/src/staticfiles', 98 post-processed.
+Pushing image 172.30.245.248:5000/yohanes-demo/mypythonapps:latest ...
+Pushed 0/6 layers, 2% complete
+Pushed 1/6 layers, 28% complete
+Pushed 2/6 layers, 49% complete
+Pushed 3/6 layers, 62% complete
+Pushed 4/6 layers, 89% complete
+Pushed 5/6 layers, 100% complete
+Pushed 6/6 layers, 100% complete
+Push successful</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_create_route">Create Route</h3>
+<div class="paragraph">
+<p>Now the application is already deployed then we can try to expose the service through Route using command below:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ oc expose service mypythonapps
+route "mypythonapps" exposed
+
+$ oc get route
+NAME           HOST/PORT                                                    PATH      SERVICES       PORT       TERMINATION   WILDCARD
+mypythonapps   mypythonapps-yohanes-demo.apps.rhpds.openshift.opentlc.com             mypythonapps   8080-tcp                 None</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we can open route url above in browser  <a href="http://mypythonapps-yohanes-demo.apps.rhpds.openshift.opentlc.com" class="bare">http://mypythonapps-yohanes-demo.apps.rhpds.openshift.opentlc.com</a></p>
+</div>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-05-16 14:32:43 +08
+Last updated 2018-05-14 21:10:52 +08
 </div>
 </div>
 </body>
