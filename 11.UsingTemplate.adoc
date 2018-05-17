@@ -1,0 +1,18 @@
+:imagesdir: ./images
+:icons: font
+:toc: left
+
+= Using Template
+
+== Check Template Code 
+
+Open Template code at https://github.com/yohanesws/openshift-tasks/blob/master/app-template.yaml and review it what happen inside.
+
+== Deploy Using template
+
+. Open Add to project
+. Choose import YAML/JSON
+. copy content from https://raw.githubusercontent.com/yohanesws/openshift-tasks/master/app-template.yaml
+. choose Process the template
+. Click Create 
+. Check In Project Application name "Task" is created based on template.

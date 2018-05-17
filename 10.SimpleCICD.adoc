@@ -1,0 +1,108 @@
+:imagesdir: ./images
+:icons: font
+:toc: left
+
+= Simple CICD
+
+In this lab, you explore a simple CI/CD environment using Jenkins as the CI/CD server. You create a Jenkins container and then use the Jenkins server to build and deploy a simple Java EE application. You set up the application in a separate project and prepare the project to be controlled by Jenkins rather than by OpenShift.
+
+Goals
+
+- Create a Jenkins container
+
+- Create a simple pipeline using Jenkins to trigger OpenShift builds
+
+- Use the Openshift pipeline to tag a new image with a Jenkins build number
+
+- Use the Openshift pipeline to trigger OpenShift deployments
+
+- Explore the Blue Ocean Jenkins pipeline view
+
+== Create Jenkins Container
+
+In this section, you create a Jenkins container to serve as your CI/CD server. OpenShift comes with a fully supported Jenkins image that you deploy now.
+
+. Log in to the web console.
+. On the Service Catalog, click the CI/CD filter to show the CI/CD templates.
+. Click Jenkins (Persistent) to select a Jenkins template that automatically sets up persistent storage.
+. Read the description on the Information page and then click Next.
+. On the Configuration page, enter or select the following values:
+- Add to Project: Create Project
+- Project Name: xyz-cicd (replacing xyz with your initials to create a unique project name)
+- Project Display Name: My CICD Project
+- Memory Limit: 1Gi
+. Click Next to move to the next page.
+. On the Bindings page, leave Do not bind at this time selected and click Create.
+. On the Results page, click the blue link to Continue to project overview.
+. Open the jenkins deployment and wait until Jenkins is fully up and running.
+- You may need to click on the Jenkins deployment to see details.
+- The pod turns from a light blue circle to a dark blue circle when Jenkins is ready.
+- Alternatively, click the pod (in the circle) and then observe the pod logs on the Logs tab of the pod properties. When you see "INFO: Jenkins is fully up and running" (this will not be the last line in the log) you are ready to proceed. At this point the blue circle turned from light blue to dark blue.
+. Once Jenkins is up and running, go back to your project overview.
+. Click the route
+- You may need to accept the certificate to proceed. You are then presented with the Jenkins login screen.
+. Because Jenkins is OAuth enabled, simply click the Login with OpenShift button.
+- 
+It presents the OpenShift login screen where you use your OPENTLC credentials again to log in to Jenkins.
+- When the authentication succeeds, you are asked to allow Jenkins to access OpenShift resources.
+. Leave the default values checked and click Allow selected permissions.
+- After a few moments, expect to see the Jenkins home screen.
+
+== Preparing Jenkins to Control Other Project
+
+Go to target project for example myproject or any project you have right know. Choose project that already have build inside it.
+
+. open resources -> membership
+. choose service account tab
+. click edit membership above
+. add your cicd project jenkins service account to role edit in current project like below:
++
+image:addjenkins-sa.png[]
++
+. click done editing above
+
+== Creating the pipeline
+
+. Go to Catalog by click openshift logo in top 
+. Search pipeline choose generic-custom-pipeline
++
+image:pipeline.png[]
++
+. Create Pipeline like below
+- Add To Project :  xyz-cicd (replacing xyz with your initials to create a unique project name)
+- APP NAME : pipeline name any of you can choose
+. Click Create
+. Go to  "xyz-cicd" project
+. Open builds->pipeline, you will see that the new pipeline is there
+. Open the pipeline and edit it:
++
+image:editpipeline.png[]
++
+. Add below pipeline and replace the <BUILD> name and <PROJECT> with what you have now for example I have 'mypythonapps' in 'myproject' project
++
+------
+def appname="<BUILD>"
+def project="<PROJECT>"
+node {
+  stage('Build Tasks') {
+    sh "oc start-build bc/${appname} -n ${project} --follow --wait"
+  }
+  stage('Tag Image') {
+    sh "oc tag ${project}/${appname}:latest ${project}/${appname}:current"
+  }
+  stage('Deploy new image') {
+    timeout(time:10, unit:'MINUTES') {
+        input message: "Deploy?", ok: "Deploy"
+    }
+    sh "oc delete svc,dc,route -l app=cicddeploy -n ${project} || true"
+    sh "oc new-app ${appname}:current --name=cicddeploy -n ${project}"
+    sh "oc rollout status dc/cicddeploy -w -n ${project}"
+    sh "oc expose svc/cicddeploy -n ${project}"
+  }
+}
+------
++
+. After that just click *start pipeline*
+. Wait until finish
+. You can also open jenkins and see that openshift pipeline is synch nicely there
+. You can explore using "Open Blue Ocean" to observe the pipeline result

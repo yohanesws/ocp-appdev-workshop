@@ -10,4 +10,11 @@
 * link:06.BuildUsingCLI.html[Lab 06 S2I with CLI]
 * link:07.ExternalConfiguration.html[Lab 07 External Configuration]
 * link:08.ManagingDeployment.html[Lab 08 Managing Deployment]
-* link:09.PersistanceStorage.html[Lab 06 S2I with CLI]
+* link:09.PersistanceStorage.html[Lab 09 Persistance STorage]
+* link:10.SimpleCICD.html[Lab 10 Simple CICD]
+* link:11.UsingTemplate.html[Lab 11 Using Template]
+
+
+== Official Documentation
+
+https://docs.openshift.com/container-platform/latest/dev_guide/index.html[Openshift Developer Documentation]

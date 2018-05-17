@@ -28,9 +28,10 @@ _you can also deploy using web console with nodejs as builder image_
 $ oc set env dc/printenv APP_VAR_1=Value1 APP_VAR_2=Value2
 $ oc set env dc/printenv APP_VAR_2-
 -----
-_you can also add using web console from application -> deployment -> printenv -> environment
+_you can also add using web console from application -> deployment -> printenv -> environment_
 
 === Create and Update ConfigMap
+
 . Create a ConfigMap with two environment variables:
 +
 -----
@@ -39,6 +40,7 @@ $ oc create configmap printenv-config \
     --from-literal=APP_VAR_4=Value4
 -----
 _you can create through web console resource -> configmaps -> create_
+
 +
 . Update the printenv deployment configuration for the application using web console or cmd
 +
@@ -86,6 +88,7 @@ sh-4.2$ cat /data/configfile.txt
 This is Wolfgang's Config File
 -----
 +
+
 
 == Using Secret
 
@@ -149,6 +152,7 @@ READ_FROM_FILE=/data/configfile.txt
 # MYSQL_APP_USER from secret printenv-secret, key app_user
 -----
 +
+
 
 === Add Secret Using Volume Mount
 

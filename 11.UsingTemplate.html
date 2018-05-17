@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.2">
-<title>Externalize Configuration</title>
+<title>Using Template</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -428,281 +428,55 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-left">
 <div id="header">
-<h1>Externalize Configuration</h1>
+<h1>Using Template</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_create_application">Create Application</a></li>
-<li><a href="#_using_configmaps">Using ConfigMaps</a>
-<ul class="sectlevel2">
-<li><a href="#_use_environment_variables">Use Environment Variables</a></li>
-<li><a href="#_create_and_update_configmap">Create and Update ConfigMap</a></li>
-<li><a href="#_return_environment_as_text_file">Return Environment as Text File</a></li>
-</ul>
-</li>
-<li><a href="#_using_secret">Using Secret</a>
-<ul class="sectlevel2">
-<li><a href="#_add_secret_using_environment_variables">Add Secret Using Environment Variables</a></li>
-<li><a href="#_add_secret_using_volume_mount">Add Secret Using Volume Mount</a></li>
-</ul>
-</li>
+<li><a href="#_check_template_code">Check Template Code</a></li>
+<li><a href="#_deploy_using_template">Deploy Using template</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
-<div id="preamble">
+<div class="sect1">
+<h2 id="_check_template_code">Check Template Code</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>In OpenShift, applications can be deployed by combining application builds with their configuration data at runtime. In this section, you use environment variables and ConfigMaps to inject application configuration information into your application at deployment time.</p>
+<p>Open Template code at <a href="https://github.com/yohanesws/openshift-tasks/blob/master/app-template.yaml" class="bare">https://github.com/yohanesws/openshift-tasks/blob/master/app-template.yaml</a> and review it what happen inside.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_create_application">Create Application</h2>
+<h2 id="_deploy_using_template">Deploy Using template</h2>
 <div class="sectionbody">
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Deploy Application</p>
+<p>Open Add to project</p>
 </li>
 <li>
-<p>Review the application from route</p>
+<p>Choose import YAML/JSON</p>
+</li>
+<li>
+<p>copy content from <a href="https://raw.githubusercontent.com/yohanesws/openshift-tasks/master/app-template.yaml" class="bare">https://raw.githubusercontent.com/yohanesws/openshift-tasks/master/app-template.yaml</a></p>
+</li>
+<li>
+<p>choose Process the template</p>
+</li>
+<li>
+<p>Click Create</p>
+</li>
+<li>
+<p>Check In Project Application name "Task" is created based on template.</p>
 </li>
 </ol>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>$ oc new-app https://github.com/yohanesws/PrintEnv
-$ oc expose svc printenv
-$ oc get route printenv --template='{{ .spec.host }}'</pre>
-</div>
-</div>
-<div class="paragraph">
-<p><em>you can also deploy using web console with nodejs as builder image</em></p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_using_configmaps">Using ConfigMaps</h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="_use_environment_variables">Use Environment Variables</h3>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Set and unset the environment variables.</p>
-</li>
-<li>
-<p>After the application redeploys, use browser or curl to verify that they are set or deleted successfully.</p>
-</li>
-<li>
-<p>Set up two environment variables:</p>
-</li>
-</ol>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>$ oc set env dc/printenv APP_VAR_1=Value1 APP_VAR_2=Value2
-$ oc set env dc/printenv APP_VAR_2-</pre>
-</div>
-</div>
-<div class="paragraph">
-<p><em>you can also add using web console from application &#8594; deployment &#8594; printenv &#8594; environment</em></p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_create_and_update_configmap">Create and Update ConfigMap</h3>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Create a ConfigMap with two environment variables:</p>
-<div class="listingblock">
-<div class="content">
-<pre>$ oc create configmap printenv-config \
-    --from-literal=APP_VAR_3=Value3 \
-    --from-literal=APP_VAR_4=Value4</pre>
-</div>
-</div>
-<div class="paragraph">
-<p><em>you can create through web console resource &#8594; configmaps &#8594; create</em></p>
-</div>
-</li>
-<li>
-<p>Update the printenv deployment configuration for the application using web console or cmd</p>
-<div class="listingblock">
-<div class="content">
-<pre>$ oc set env --from=configmap/printenv-config --prefix=MY_ dc/printenv</pre>
-</div>
-</div>
-</li>
-<li>
-<p>When the application finishes the deployment, use curl or browser to verify success.</p>
-</li>
-</ol>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_return_environment_as_text_file">Return Environment as Text File</h3>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Set an environment variable to read from the file:</p>
-<div class="listingblock">
-<div class="content">
-<pre>$ oc set env dc/printenv READ_FROM_FILE=/data/configfile.txt</pre>
-</div>
-</div>
-</li>
-<li>
-<p>Create a configuration file:</p>
-<div class="listingblock">
-<div class="content">
-<pre>$ echo "This is Wolfgang's Config File" &gt; configfile.txt
-$ oc create configmap printenv-config-file --from-file=configfile.txt
-$ oc set volume dc/printenv --add --overwrite --name=config-volume -m /data/ -t configmap --configmap-name=printenv-config-file</pre>
-</div>
-</div>
-</li>
-<li>
-<p>Find running pods</p>
-<div class="listingblock">
-<div class="content">
-<pre>$ oc get pods
-NAME               READY     STATUS      RESTARTS   AGE
-printenv-1-build   0/1       Completed   0          12m
-printenv-5-xqgsl   1/1       Running     0          4m</pre>
-</div>
-</div>
-</li>
-<li>
-<p>Open a shell in the running pod—in the sample output above, it is called printenv-5-xqgsl—and check for the existence and correct contents of the configuration file:</p>
-<div class="listingblock">
-<div class="content">
-<pre>$ oc rsh printenv-5-xqgsl
-
-sh-4.2$ ls /data/configfile.txt
-/data/configfile.txt
-
-sh-4.2$ cat /data/configfile.txt
-This is Wolfgang's Config File</pre>
-</div>
-</div>
-</li>
-</ol>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_using_secret">Using Secret</h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="_add_secret_using_environment_variables">Add Secret Using Environment Variables</h3>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Create a secret from a file:</p>
-<div class="listingblock">
-<div class="content">
-<pre>$ echo 'r3dh4t1!' &gt; ./password.txt
-$ echo 'admin' &gt; ./user.txt
-$ oc secret new printenv-secret app_user=user.txt app_password=password.txt
-$ oc describe secrets printenv-secret</pre>
-</div>
-</div>
-</li>
-<li>
-<p>Validate the secret:</p>
-<div class="listingblock">
-<div class="content">
-<pre>$ oc get secret printenv-secret -o yaml
-apiVersion: v1
-data:
-  app_password: cjNkaDR0MSEK
-  app_user: YWRtaW4K
-kind: Secret
-[...]</pre>
-</div>
-</div>
-</li>
-<li>
-<p>Add the secret to the printenv application:</p>
-<div class="listingblock">
-<div class="content">
-<pre>$ oc env dc/printenv --from=secret/printenv-secret</pre>
-</div>
-</div>
-</li>
-<li>
-<p>Verify the correct values of the environment variables:</p>
-<div class="listingblock">
-<div class="content">
-<pre># deploymentconfigs printenv, container printenv
-APP_VAR_1=Value1
-# APP_VAR_3 from configmap printenv-config, key APP_VAR_3
-# APP_VAR_4 from configmap printenv-config, key APP_VAR_4
-# APP_PASSWORD from secret printenv-secret, key app_password
-# APP_USER from secret printenv-secret, key app_user</pre>
-</div>
-</div>
-</li>
-<li>
-<p>Set the same secrets for the MySQL database by adding the MYSQL_ prefix:</p>
-<div class="listingblock">
-<div class="content">
-<pre>$ oc env dc/printenv --from=secret/printenv-secret --prefix=MYSQL_
-$ oc env dc/printenv --list
-# deploymentconfigs printenv, container printenv
-APP_VAR_1=Value1
-# APP_VAR_3 from configmap printenv-config, key APP_VAR_3
-# APP_VAR_4 from configmap printenv-config, key APP_VAR_4
-READ_FROM_FILE=/data/configfile.txt
-# APP_PASSWORD from secret printenv-secret, key app_password
-# APP_USER from secret printenv-secret, key app_user
-# MYSQL_APP_PASSWORD from secret printenv-secret, key app_password
-# MYSQL_APP_USER from secret printenv-secret, key app_user</pre>
-</div>
-</div>
-</li>
-</ol>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_add_secret_using_volume_mount">Add Secret Using Volume Mount</h3>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Create a database configuration consisting of a user ID, password, and database URL:</p>
-<div class="listingblock">
-<div class="content">
-<pre>$ echo 'r3dh4t1!' &gt; ./dbpassword.txt
-$ echo 'admin' &gt; ./dbuser.txt
-$ echo 'http://postgresql:5432' &gt; ./dburl.txt
-$ oc secret new printenv-db-secret app_db_user=user.txt app_db_password=password.txt app_db_url=dburl.txt</pre>
-</div>
-</div>
-</li>
-<li>
-<p>Mount the new database secret as a volume into the printenv deployment configuration and set the READ_FROM_FILE variable to point to the app_db_url file in that volume:</p>
-<div class="listingblock">
-<div class="content">
-<pre>$ oc set volume dc/printenv --add --overwrite --name=db-config-volume -m /dbconfig/ --secret-name=printenv-db-secret
-$ oc set env dc/printenv READ_FROM_FILE=/dbconfig/app_db_url</pre>
-</div>
-</div>
-<div class="paragraph">
-<p><em>Note that the name app_db_url is the name of the secret, not the original file name.</em></p>
-</div>
-</li>
-</ol>
-</div>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-05-17 11:21:02 +08
+Last updated 2018-05-17 14:17:35 +08
 </div>
 </div>
 </body>

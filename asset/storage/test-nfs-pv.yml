@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  annotations:
+    pv.kubernetes.io/bound-by-controller: "yes"
+  creationTimestamp: null
+  name: test-nfs-sit-pv
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 50Gi
+  nfs:
+    path: /nfsshare/myprestasi-pict-dev
+    server: openshift-nfsshare.osdec.gov.my
+  persistentVolumeReclaimPolicy: Retain
+status: {}
