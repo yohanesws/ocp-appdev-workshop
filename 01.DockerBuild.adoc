@@ -45,20 +45,50 @@ A registry is a *host* -- a server that stores repositories and provides an HTTP
 
 == Build Container
 
-=== Sample Dockerfile
+=== Sample Dockerfile and Creating the project
+
+Create empty aspnet project
+
+----
+mkdir <your_project_dir>
+dotnet new web
+dotnet restore
+dotnet publish -c release
+----
 
 We will using below Dockerfile on this lab:
 
 -----
-FROM registry.access.redhat.com/rhel7.5:latest
-LABEL maintainer="Yohanes <ysono@redhat.com>"
-LABEL description="My First Container"
-RUN echo "my first command"
-RUN echo "my second command"
-CMD bash -c "while true; do echo test; sleep 5; done"
+FROM microsoft/dotnet 
+
+# Set ASPNETCORE_URLS
+ENV ASPNETCORE_URLS=https://*:8080
+
+# Switch to root for changing dir ownership/permissions
+USER 0
+
+# Copy the binaries
+COPY /bin/release/netcoreapp1.1/publish app
+
+# Change to app directory
+WORKDIR app
+
+# In order to drop the root user, we have to make some directories world
+# writable as OpenShift default security model is to run the container under
+# random UID.
+RUN chown -R 1001:0 /app && chmod -R og+rwx /app
+
+# Expose port 8080 for the application.
+EXPOSE 8080
+
+# Run container by default as user with id 1001 (default)
+USER 1001
+
+# Start the application using dotnet!!!
+ENTRYPOINT dotnet aspnet.on.openshift.dll
 -----
 
-Please save above code in file called *Dockerfile*
+Please save above code in file called *Dockerfile* at <your_project_dir>
 
 === Build Dockerfile using OCP
 
@@ -104,43 +134,11 @@ $oc new-build --name=testcontainer --binary
 
 After we create the build then we can start it using command below:
 ----
-$cd <directory-of-dockerfile>
+$cd <your_project_dir>
 $oc start-build testcontainer --from-dir=. --follow
 build "testcontainer-1" started
 Receiving source from STDIN as archive ...
-Pulling image registry.access.redhat.com/rhel7.5:latest ...
-Step 1 : FROM registry.access.redhat.com/rhel7.5:latest
- ---> fd1ba0b398a8
-Step 2 : LABEL maintainer "Yohanes <ysono@redhat.com>"
- ---> Running in aec2ebe06419
- ---> 3722ef399359
-Removing intermediate container aec2ebe06419
-Step 3 : LABEL description "My First Container"
- ---> Running in 539f82ea9fb7
- ---> 1be46ba49bed
-Removing intermediate container 539f82ea9fb7
-Step 4 : RUN echo "my first command"
- ---> Running in 818a79b8f77f
-my first command
- ---> 8a0e5b498f7e
-Removing intermediate container 818a79b8f77f
-Step 5 : RUN echo "my second command"
- ---> Running in a8ab7c861d0e
-my second command
- ---> 639b9d28532e
-Removing intermediate container a8ab7c861d0e
-Step 6 : CMD bash -c "while true; do echo test; sleep 5; done"
- ---> Running in 2100f92115a3
- ---> 570d7d44044b
-Removing intermediate container 2100f92115a3
-Step 7 : ENV "OPENSHIFT_BUILD_NAME" "testcontainer-1" "OPENSHIFT_BUILD_NAMESPACE" "yohanes-demo"
- ---> Running in ae6937911342
- ---> d86deead3849
-Removing intermediate container ae6937911342
-Step 8 : LABEL "io.openshift.build.name" "testcontainer-1" "io.openshift.build.namespace" "yohanes-demo"
- ---> Running in ee93e0544628
- ---> ad890073c1a7
-Removing intermediate container ee93e0544628
+....
 Successfully built ad890073c1a7
 Pushing image 172.30.245.248:5000/yohanes-demo/testcontainer:latest ...
 Pushed 0/2 layers, 50% complete
@@ -154,71 +152,3 @@ Push successful
 After build is completed image will be created and can be check through OpenShift Console like shown below:
 
 image:images.png[]
-
-=== Optimize The Dockerfile
-
-The dockerfile abave is not yet optimized we can optimize became like below:
-----
-FROM registry.access.redhat.com/rhel7.5:latest
-LABEL maintainer="Yohanes <ysono@redhat.com>" \
-      description="My First Container"
-RUN echo "my first command" && \
-    echo "my second command"
-CMD bash -c "while true; do echo test; sleep 5; done"
-----
-
-The different is we avoid call multiple docker syntax multiple time since and combine the same command into one called.
-
-==== 01. Build new optimize container
-----
-$oc new-build --name=optimizecontainer --binary
-* A Docker build using binary input will be created
-      * The resulting image will be pushed to image stream "optimizecontainer:latest"
-      * A binary build was created, use 'start-build --from-dir' to trigger a new build
-
---> Creating resources with label build=optimizecontainer ...
-    imagestream "optimizecontainer" created
-    buildconfig "optimizecontainer" created
---> Success
-
-----
-
-==== 02. Start Build new optimize container
-
-----
-$oc start-build optimizecontainer --from-dir=. --follow
-Uploading directory "asset/optimizecontainer" as binary input for the build ...
-build "optimizecontainer-1" started
-Receiving source from STDIN as archive ...
-Pulling image registry.access.redhat.com/rhel7.5:latest ...
-Step 1 : FROM registry.access.redhat.com/rhel7.5:latest
- ---> fd1ba0b398a8
-Step 2 : LABEL maintainer "Yohanes <ysono@redhat.com>" description "My First Container"
- ---> Running in bbc00c5ec1fe
- ---> f6b9e8b47990
-Removing intermediate container bbc00c5ec1fe
-Step 3 : RUN echo "my first command" &&     echo "my second command"
- ---> Running in f8c822219152
-my first command
-my second command
- ---> ed480d62f8c5
-Removing intermediate container f8c822219152
-Step 4 : CMD bash -c "while true; do echo test; sleep 5; done"
- ---> Running in 1ec2274c8b24
- ---> feff9fe77933
-Removing intermediate container 1ec2274c8b24
-Step 5 : ENV "OPENSHIFT_BUILD_NAME" "optimizecontainer-1" "OPENSHIFT_BUILD_NAMESPACE" "yohanes-demo"
- ---> Running in 6db0aeb308d7
- ---> 6cf14b315e8b
-Removing intermediate container 6db0aeb308d7
-Step 6 : LABEL "io.openshift.build.name" "optimizecontainer-1" "io.openshift.build.namespace" "yohanes-demo"
- ---> Running in 9bb89c75dc6f
- ---> 754cd73194fc
-Removing intermediate container 9bb89c75dc6f
-Successfully built 754cd73194fc
-Pushing image 172.30.245.248:5000/yohanes-demo/optimizecontainer:latest ...
-Pushed 0/2 layers, 1% complete
-Pushed 1/2 layers, 51% complete
-Pushed 2/2 layers, 100% complete
-Push successful
-----

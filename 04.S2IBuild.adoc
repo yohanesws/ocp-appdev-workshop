@@ -34,56 +34,23 @@ image:php-s2i.png[]
 . Once the pod is blue, click the route above the blue circle to display the application.
 
 
-== Create Node.JS Application
+== Create .NET CORE Application
 
 === Review The Source Code
 
-Open git repository https://github.com/openshift/nodejs-ex.git to review the code what is build and deploy to openshift
+Open git repository https://github.com/redhat-developer/s2i-dotnetcore-ex to review the code what is build and deploy to openshift
 
-=== Deploy MongoDB database
-. Click *OpenShift Container Platform* at the top of the screen to return to the home screen with the service catalog.
-. In the catalog, select Database.
-. Click MongoDB
-- This displays two items: MongoDB (Ephemeral) and MongoDB (Persistent).
-. Click MongoDB (Ephemeral) to start the deployment wizard.
-. Read the overview of the template, then click Next.
-. On the Configuration screen, fill in the following fields as shown:
-- Add to Project: Make sure that your project is selected.
-- All other settings: Leave the default values.
-. Click Next.
-. On the Bindings screen, select Create a secret in Project to be used later to create a binding to be used in your Node.JS client application.
-. Click Create to create the database and display the Results screen.
-
-=== Review MongoDB Details
-. From the Results screen, click the Continue to the project overview link.
-- This takes you to the project overview of your newly created project rather than dropping you back on the service catalog home screen.
-. Observe that the deployment is running.
-- When the database is running, you see one available pod (indicated by a blue ring).
-. Click > to expand the MongoDB deployment and note the following details:
-- The container image that is the foundation for your MongoDB container
-- The port on which the MongoDB service is listening inside the container
-- The service name (mongodb) under which the database is accessible
-- No route is created for the service, which is fine because the database is not exposed outside the OpenShift cluster.
-. Scroll down to the Provisioned Services section and expand MongoDB (Ephemeral).
-. Observe that a binding has been created with a name similar to mongodb-ephemeral
-- Note that initially the state of the binding is Pending. After a minute or two, the Pending status is replaced with Delete and View Secret buttons.
-. Click View Secret to examine the created secret.
-- This secret holds all of the necessary information that a client needs to connect to this particular database instance.
-. Click Reveal Secret to show the contents of the secret.
-. Observe that the URI points to the service IP address of the database.
-- If this was an external database for which the service broker had created access credentials, this URI would point to that particular database. But because this MongoDB instance is running inside your OpenShift project, using the service is sufficient.
-
-=== Deploy NodeJS application
+=== Deploy .Net core application
 . Click *OpenShift Container Platform* at the top of the screen to return to the home screen with the service catalog.
 . In the catalog, select Languages.
 - This displays a list of all of the builder images that are available to create container images from source code.
-. Click JavaScript and select the Node.js builder image.
+. Click .NET and select the .NET builder image.
 . In the service provisioning wizard, read the description and then click Next.
 . Use the following settings to configure the application:
 - Add to Project: Make sure that your project is selected.
-- Version: 7.0
-- Application Name: mynodejsapps
-- Git Repository: https://github.com/openshift/nodejs-ex.git
+- Version: 2.1
+- Application Name: mynetcorejsapps
+- Git Repository: https://github.com/redhat-developer/s2i-dotnetcore-ex
 * You can simply click the Try Sample Repository link to fill this field
 . Click Create
 
@@ -92,41 +59,8 @@ Open git repository https://github.com/openshift/nodejs-ex.git to review the cod
 . Observe that the image is being built and pushed to the internal registry, and a deployment is started.
 - Expect to see the blue circle once the pod is running, at which point you can click > to the left of mynodejsapps to see more details.
 . Once the pod is blue, click the route above the blue circle to display the application.
-- At the bottom of the right-hand column of the application, you can see the Page View Count field, which currently displays "No database configured." This is because you have not told the application what the credentials are to connect to the database.
 
-=== Add MongoDB Binding
 
-Remember that you created a binding when you deployed the MongoDB database. You now add that binding to your newly created application to provide persistence.
-
-. Click mynodejsapps under the Deployment header to open the deployment configuration for your Node.JS application.
-. Click the Environment tab.
-- This Node.JS application can receive the database configuration via environment variables. Unfortunately the variable names that the application expects are slightly different from the field names in your binding secret. If they were identical you could just bind the whole secret. But they are not, so you need to bind individual fields.
-. Click the Add Value from Config Map or Secret link.
-- his displays a row with a name field, a list of secret names, and a list of values associated with the secret.
-. Create four environment variables (rows) as Below:
-
-[options="header,footer"]
-|========
-|Name|Select a Resource	|Secret Key
-|MONGODB_USER|Select your secret from the pull-down list.|username
-|MONGODB_DATABASE | Select your secret from the pull-down list.|database_name
-|MONGODB_PASSWORD|Select your secret from the pull-down list.|password
-|MONGODB_ADMIN_PASSWORD|Select your secret from the pull-down list.|admin_password
-|========
-
-[start=5]
-. Click Add Value to add a regular environment variable and use DATABASE_SERVICE_NAME as the Name and mongodb as the Value.
-- This enables the example application that you use for this lab to construct the URI itself. Instead of passing the URI from the secret, you pass the service name for your database (mongodb).
-. Click Save to update the deployment configuration with the new environment values.
-. Click Overview in the left-hand panel to go back to the project overview.
-. Observe that the number next to your deployment configuration (mynodejsapps) increased because you changed the configuration.
-- Every time you change a configuration setting, OpenShift creates a new version of the deployment configuration and redeploys the application. This ensures that you can go back to a previous version if the change created a problem.
-. To verify that your application bound successfully to the database, click the route to your application again.
-- Expect to see a section at the bottom right corner, labeled DB Connection Info, with details about your database connection. You can also see that every time you refresh the page, the page view count increases by one.
-
-You have just created a database service from the OpenShift service catalog. You picked an ephemeral service—meaning that it does not persist any data over pod restarts—which is fine for this demonstration.
-
-You also created an application from Node.JS source code in a GitHub repository and bound the database to the application. This enabled the application to use the database without really knowing anything about the implementation details of the database. This database can be in the same project (as in this example), a different project, a different OpenShift cluster, somewhere outside OpenShift but still in your data center, or dynamically provisioned in the cloud. All that the application needs is the connection information and the rest is handled by OpenShift.
 
 
 
