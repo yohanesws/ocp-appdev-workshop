@@ -439,14 +439,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_review_application_detail">Review Application Detail</a></li>
 </ul>
 </li>
-<li><a href="#_create_node_js_application">Create Node.JS Application</a>
+<li><a href="#_create_net_core_application">Create .NET CORE Application</a>
 <ul class="sectlevel2">
 <li><a href="#_review_the_source_code_2">Review The Source Code</a></li>
-<li><a href="#_deploy_mongodb_database">Deploy MongoDB database</a></li>
-<li><a href="#_review_mongodb_details">Review MongoDB Details</a></li>
-<li><a href="#_deploy_nodejs_application">Deploy NodeJS application</a></li>
+<li><a href="#_deploy_net_core_application">Deploy .Net core application</a></li>
 <li><a href="#_review_application_detail_2">Review Application Detail</a></li>
-<li><a href="#_add_mongodb_binding">Add MongoDB Binding</a></li>
 </ul>
 </li>
 </ul>
@@ -546,149 +543,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
-<h2 id="_create_node_js_application">Create Node.JS Application</h2>
+<h2 id="_create_net_core_application">Create .NET CORE Application</h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_review_the_source_code_2">Review The Source Code</h3>
 <div class="paragraph">
-<p>Open git repository <a href="https://github.com/openshift/nodejs-ex.git" class="bare">https://github.com/openshift/nodejs-ex.git</a> to review the code what is build and deploy to openshift</p>
+<p>Open git repository <a href="https://github.com/redhat-developer/s2i-dotnetcore-ex" class="bare">https://github.com/redhat-developer/s2i-dotnetcore-ex</a> to review the code what is build and deploy to openshift</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_deploy_mongodb_database">Deploy MongoDB database</h3>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Click <strong>OpenShift Container Platform</strong> at the top of the screen to return to the home screen with the service catalog.</p>
-</li>
-<li>
-<p>In the catalog, select Database.</p>
-</li>
-<li>
-<p>Click MongoDB</p>
-<div class="ulist">
-<ul>
-<li>
-<p>This displays two items: MongoDB (Ephemeral) and MongoDB (Persistent).</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>Click MongoDB (Ephemeral) to start the deployment wizard.</p>
-</li>
-<li>
-<p>Read the overview of the template, then click Next.</p>
-</li>
-<li>
-<p>On the Configuration screen, fill in the following fields as shown:</p>
-<div class="ulist">
-<ul>
-<li>
-<p>Add to Project: Make sure that your project is selected.</p>
-</li>
-<li>
-<p>All other settings: Leave the default values.</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>Click Next.</p>
-</li>
-<li>
-<p>On the Bindings screen, select Create a secret in Project to be used later to create a binding to be used in your Node.JS client application.</p>
-</li>
-<li>
-<p>Click Create to create the database and display the Results screen.</p>
-</li>
-</ol>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_review_mongodb_details">Review MongoDB Details</h3>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>From the Results screen, click the Continue to the project overview link.</p>
-<div class="ulist">
-<ul>
-<li>
-<p>This takes you to the project overview of your newly created project rather than dropping you back on the service catalog home screen.</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>Observe that the deployment is running.</p>
-<div class="ulist">
-<ul>
-<li>
-<p>When the database is running, you see one available pod (indicated by a blue ring).</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>Click &gt; to expand the MongoDB deployment and note the following details:</p>
-<div class="ulist">
-<ul>
-<li>
-<p>The container image that is the foundation for your MongoDB container</p>
-</li>
-<li>
-<p>The port on which the MongoDB service is listening inside the container</p>
-</li>
-<li>
-<p>The service name (mongodb) under which the database is accessible</p>
-</li>
-<li>
-<p>No route is created for the service, which is fine because the database is not exposed outside the OpenShift cluster.</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>Scroll down to the Provisioned Services section and expand MongoDB (Ephemeral).</p>
-</li>
-<li>
-<p>Observe that a binding has been created with a name similar to mongodb-ephemeral</p>
-<div class="ulist">
-<ul>
-<li>
-<p>Note that initially the state of the binding is Pending. After a minute or two, the Pending status is replaced with Delete and View Secret buttons.</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>Click View Secret to examine the created secret.</p>
-<div class="ulist">
-<ul>
-<li>
-<p>This secret holds all of the necessary information that a client needs to connect to this particular database instance.</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>Click Reveal Secret to show the contents of the secret.</p>
-</li>
-<li>
-<p>Observe that the URI points to the service IP address of the database.</p>
-<div class="ulist">
-<ul>
-<li>
-<p>If this was an external database for which the service broker had created access credentials, this URI would point to that particular database. But because this MongoDB instance is running inside your OpenShift project, using the service is sufficient.</p>
-</li>
-</ul>
-</div>
-</li>
-</ol>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_deploy_nodejs_application">Deploy NodeJS application</h3>
+<h3 id="_deploy_net_core_application">Deploy .Net core application</h3>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -705,7 +569,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </li>
 <li>
-<p>Click JavaScript and select the Node.js builder image.</p>
+<p>Click .NET and select the .NET builder image.</p>
 </li>
 <li>
 <p>In the service provisioning wizard, read the description and then click Next.</p>
@@ -718,13 +582,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Add to Project: Make sure that your project is selected.</p>
 </li>
 <li>
-<p>Version: 7.0</p>
+<p>Version: 2.1</p>
 </li>
 <li>
-<p>Application Name: mynodejsapps</p>
+<p>Application Name: mynetcorejsapps</p>
 </li>
 <li>
-<p>Git Repository: <a href="https://github.com/openshift/nodejs-ex.git" class="bare">https://github.com/openshift/nodejs-ex.git</a></p>
+<p>Git Repository: <a href="https://github.com/redhat-developer/s2i-dotnetcore-ex" class="bare">https://github.com/redhat-developer/s2i-dotnetcore-ex</a></p>
 <div class="ulist">
 <ul>
 <li>
@@ -761,135 +625,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li>
 <p>Once the pod is blue, click the route above the blue circle to display the application.</p>
-<div class="ulist">
-<ul>
-<li>
-<p>At the bottom of the right-hand column of the application, you can see the Page View Count field, which currently displays "No database configured." This is because you have not told the application what the credentials are to connect to the database.</p>
-</li>
-</ul>
-</div>
 </li>
 </ol>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_add_mongodb_binding">Add MongoDB Binding</h3>
-<div class="paragraph">
-<p>Remember that you created a binding when you deployed the MongoDB database. You now add that binding to your newly created application to provide persistence.</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Click mynodejsapps under the Deployment header to open the deployment configuration for your Node.JS application.</p>
-</li>
-<li>
-<p>Click the Environment tab.</p>
-<div class="ulist">
-<ul>
-<li>
-<p>This Node.JS application can receive the database configuration via environment variables. Unfortunately the variable names that the application expects are slightly different from the field names in your binding secret. If they were identical you could just bind the whole secret. But they are not, so you need to bind individual fields.</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>Click the Add Value from Config Map or Secret link.</p>
-<div class="ulist">
-<ul>
-<li>
-<p>his displays a row with a name field, a list of secret names, and a list of values associated with the secret.</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>Create four environment variables (rows) as Below:</p>
-</li>
-</ol>
-</div>
-<table class="tableblock frame-all grid-all spread">
-<colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name</th>
-<th class="tableblock halign-left valign-top">Select a Resource</th>
-<th class="tableblock halign-left valign-top">Secret Key</th>
-</tr>
-</thead>
-<tfoot>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">MONGODB_ADMIN_PASSWORD</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Select your secret from the pull-down list.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">admin_password</p></td>
-</tr>
-</tfoot>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">MONGODB_USER</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Select your secret from the pull-down list.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">username</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">MONGODB_DATABASE</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Select your secret from the pull-down list.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">database_name</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">MONGODB_PASSWORD</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Select your secret from the pull-down list.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">password</p></td>
-</tr>
-</tbody>
-</table>
-<div class="olist arabic">
-<ol class="arabic" start="5">
-<li>
-<p>Click Add Value to add a regular environment variable and use DATABASE_SERVICE_NAME as the Name and mongodb as the Value.</p>
-<div class="ulist">
-<ul>
-<li>
-<p>This enables the example application that you use for this lab to construct the URI itself. Instead of passing the URI from the secret, you pass the service name for your database (mongodb).</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>Click Save to update the deployment configuration with the new environment values.</p>
-</li>
-<li>
-<p>Click Overview in the left-hand panel to go back to the project overview.</p>
-</li>
-<li>
-<p>Observe that the number next to your deployment configuration (mynodejsapps) increased because you changed the configuration.</p>
-<div class="ulist">
-<ul>
-<li>
-<p>Every time you change a configuration setting, OpenShift creates a new version of the deployment configuration and redeploys the application. This ensures that you can go back to a previous version if the change created a problem.</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>To verify that your application bound successfully to the database, click the route to your application again.</p>
-<div class="ulist">
-<ul>
-<li>
-<p>Expect to see a section at the bottom right corner, labeled DB Connection Info, with details about your database connection. You can also see that every time you refresh the page, the page view count increases by one.</p>
-</li>
-</ul>
-</div>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>You have just created a database service from the OpenShift service catalog. You picked an ephemeral service—meaning that it does not persist any data over pod restarts—which is fine for this demonstration.</p>
-</div>
-<div class="paragraph">
-<p>You also created an application from Node.JS source code in a GitHub repository and bound the database to the application. This enabled the application to use the database without really knowing anything about the implementation details of the database. This database can be in the same project (as in this example), a different project, a different OpenShift cluster, somewhere outside OpenShift but still in your data center, or dynamically provisioned in the cloud. All that the application needs is the connection information and the rest is handled by OpenShift.</p>
 </div>
 </div>
 </div>
@@ -897,7 +634,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-05-14 15:33:25 +08
+Last updated 2018-07-28 20:14:20 WIB
 </div>
 </div>
 </body>
