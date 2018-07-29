@@ -36,6 +36,10 @@ image:php-s2i.png[]
 
 == Create .NET CORE Application
 
+=== Prepare .NET CORE builder
+
+
+
 === Review The Source Code
 
 Open git repository https://github.com/redhat-developer/s2i-dotnetcore-ex to review the code what is build and deploy to openshift
