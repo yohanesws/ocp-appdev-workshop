@@ -548,7 +548,15 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_prepare_net_core_builder">Prepare .NET CORE builder</h3>
-
+<div class="paragraph">
+<p>go to command line and login as cluster admin and run command below:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ oc login -u system:admin
+$ oc create -f https://raw.githubusercontent.com/redhat-developer/s2i-dotnetcore/master/dotnet_imagestreams.json -n openshift</pre>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_review_the_source_code_2">Review The Source Code</h3>
@@ -590,7 +598,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Version: 2.1</p>
 </li>
 <li>
-<p>Application Name: mynetcorejsapps</p>
+<p>Application Name: mynetcoreapps</p>
 </li>
 <li>
 <p>Git Repository: <a href="https://github.com/redhat-developer/s2i-dotnetcore-ex" class="bare">https://github.com/redhat-developer/s2i-dotnetcore-ex</a></p>
@@ -609,6 +617,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Click Create</p>
 </li>
 </ol>
+</div>
+<div class="paragraph">
+<p><span class="image"><img src="./images/netcorebuilder.png" alt="netcorebuilder"></span>
+<span class="image"><img src="./images/netcores2i.png" alt="netcores2i"></span></p>
 </div>
 </div>
 <div class="sect2">
@@ -639,7 +651,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-07-29 16:16:48 WIB
+Last updated 2018-07-29 16:22:58 WIB
 </div>
 </div>
 </body>
