@@ -38,7 +38,12 @@ image:php-s2i.png[]
 
 === Prepare .NET CORE builder
 
-
+go to command line and login as cluster admin and run command below:
+ 
+----
+$ oc login -u system:admin
+$ oc create -f https://raw.githubusercontent.com/redhat-developer/s2i-dotnetcore/master/dotnet_imagestreams.json -n openshift
+----
 
 === Review The Source Code
 
@@ -53,10 +58,13 @@ Open git repository https://github.com/redhat-developer/s2i-dotnetcore-ex to rev
 . Use the following settings to configure the application:
 - Add to Project: Make sure that your project is selected.
 - Version: 2.1
-- Application Name: mynetcorejsapps
+- Application Name: mynetcoreapps
 - Git Repository: https://github.com/redhat-developer/s2i-dotnetcore-ex
 * You can simply click the Try Sample Repository link to fill this field
 . Click Create
+
+image:netcorebuilder.png[]
+image:netcores2i.png[]
 
 === Review Application Detail
 . From the Results screen, click the Continue to the project overview link.
