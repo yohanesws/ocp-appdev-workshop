@@ -68,9 +68,11 @@ $ dotnet publish -f netcoreapp2.1 -c Release -r rhel.7-x64 --self-contained true
 We will using below Dockerfile on this lab:
 
 -----
-FROM dotnet/dotnet-21-runtime-rhel7
+FROM registry.access.redhat.com/dotnet/dotnet-21-runtime-rhel7:latest
+
 ADD bin/release/netcoreapp2.1/rhel.7-x64/publish/. .
-CMD [ "dotnet", "app.dll" ]
+
+CMD [ "dotnet", "mydotnetapps.dll" ]
 -----
 
 Please save above code in file called *Dockerfile* at <your_project_dir>
