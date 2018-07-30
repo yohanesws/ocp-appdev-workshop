@@ -6,11 +6,11 @@
 
 Before we already learn how to deploy source to image using web console. However, same goal can be achieve also using openshift CLI
 
-== Create Python Application
+== Create Node.JS Application
 
-=== Review application code
+=== Review The Source Code
 
-Open git repository https://github.com/openshift/django-ex.git to review the code what is build and deploy to openshift
+Open git repository https://github.com/openshift/nodejs-ex.git to review the code what is build and deploy to openshift
 
 === Find Image Builder
 
@@ -70,72 +70,44 @@ ruby                                  172.30.245.248:5000/openshift/ruby        
 We will have lot of builder that can be choosen. Moreover, for example we want to deploy python application we find there python builder with several version that can be choose. To descriibe more about the builder we can use below command:
 
 ----
-$ oc describe is python -n openshift
+$ oc describe is/nodejs -n openshift
 ----
 
-and detail describtion for python builder can be check here:
+and detail describtion for nodejs builder can be check here:
 
 ----
-ame:			python
+Name:			nodejs
 Namespace:		openshift
-Created:		5 months ago
+Created:		7 days ago
 Labels:			<none>
-Annotations:		openshift.io/display-name=Python
-			openshift.io/image.dockerRepositoryCheck=2018-02-22T12:17:35Z
-Docker Pull Spec:	172.30.245.248:5000/openshift/python
+Annotations:		openshift.io/display-name=Node.js
+			openshift.io/image.dockerRepositoryCheck=2018-07-22T16:27:01Z
+Docker Pull Spec:	172.30.1.1:5000/openshift/nodejs
 Image Lookup:		local=false
-Unique Images:		7
+Unique Images:		4
 Tags:			5
 
-3.5 (latest)
-  tagged from registry.access.redhat.com/rhscl/python-35-rhel7:latest
+6
+  tagged from registry.access.redhat.com/rhscl/nodejs-6-rhel7:latest
 
-  Build and run Python 3.5 applications on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/s2i-python-container/blob/master/3.5/README.md.
-  Tags: builder, python
-  Supports: python:3.5, python
-  Example Repo: https://github.com/openshift/django-ex.git
+  Build and run Node.js 6 applications on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/s2i-nodejs-container.
+  Tags: builder, nodejs
+  Supports: nodejs:6, nodejs
+  Example Repo: https://github.com/openshift/nodejs-ex.git
 
-  * registry.access.redhat.com/rhscl/python-35-rhel7@sha256:27ce32b0855dea7b078048064b72e1554069ec737ef3398fa740cc72ec82ddb9
-      2 months ago
-    registry.access.redhat.com/rhscl/python-35-rhel7@sha256:b6a0b374557448025afc592959254610f402434730d4f3616d3bf081e50f8453
-      5 months ago
+  * registry.access.redhat.com/rhscl/nodejs-6-rhel7@sha256:c757f417bdb2548bbc24ccb30789f787e751f1c1ed73cd9cf3dff7acfcc39c94
+      7 days ago
 
-3.4
-  tagged from registry.access.redhat.com/rhscl/python-34-rhel7:latest
+8 (latest)
+  tagged from registry.access.redhat.com/rhscl/nodejs-8-rhel7:latest
 
-  Build and run Python 3.4 applications on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/s2i-python-container/blob/master/3.4/README.md.
-  Tags: builder, python
-  Supports: python:3.4, python
-  Example Repo: https://github.com/openshift/django-ex.git
+  Build and run Node.js 8 applications on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/s2i-nodejs-container.
+  Tags: builder, nodejs
+  Example Repo: https://github.com/openshift/nodejs-ex.git
 
-  * registry.access.redhat.com/rhscl/python-34-rhel7@sha256:0677366367b1f1a736bdb50b926559c1bdeed02de1bce477f8fe7ed53336a572
-      2 months ago
-    registry.access.redhat.com/rhscl/python-34-rhel7@sha256:707619b89710f79ba7b60d522cf157229f06b63c1cd780f164d09a8c5fa8fd94
-      5 months ago
+  * registry.access.redhat.com/rhscl/nodejs-8-rhel7@sha256:7b26a9d8ace47e939a9fcdca61620dbe47d1b936e68983e252cca50991704c7c
+      7 days ago
 
-3.3
-  tagged from registry.access.redhat.com/openshift3/python-33-rhel7:latest
-
-  Build and run Python 3.3 applications on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/s2i-python-container/blob/master/3.3/README.md.
-  Tags: hidden, builder, python
-  Supports: python:3.3, python
-  Example Repo: https://github.com/openshift/django-ex.git
-
-  * registry.access.redhat.com/openshift3/python-33-rhel7@sha256:10f52e526d723e970e06334b0590753747f222437af3e7f6fa1311a71088573e
-      5 months ago
-
-2.7
-  tagged from registry.access.redhat.com/rhscl/python-27-rhel7:latest
-
-  Build and run Python 2.7 applications on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/s2i-python-container/blob/master/2.7/README.md.
-  Tags: builder, python
-  Supports: python:2.7, python
-  Example Repo: https://github.com/openshift/django-ex.git
-
-  * registry.access.redhat.com/rhscl/python-27-rhel7@sha256:aabc9d170a0cf327d55890e30b1627210c964012c4b301d297191e0c06ad5fac
-      2 months ago
-    registry.access.redhat.com/rhscl/python-27-rhel7@sha256:05465c8a41527fa8a4f81606a4f43d105a3e83df386feac7fda47b3491b09a0e
-      5 months ago
 
 ----
 
@@ -157,38 +129,45 @@ python
 
 -----
 
-== Deploy Python Application
+== Deploy nodejs Application
+
+=== Deploy MongoDB database
+
+----
+$ oc new-app mongodb
+----
+
 
 === Create Build and Deploy
 
 To create build and deploy in same time we can use *oc new-app* command like below:
 
 ----
-$ oc new-app openshift/python:3.5~https://github.com/openshift/django-ex.git --name=mypythonapps
+$ oc new-app openshift/nodejs:8~https://github.com/openshift/nodejs-ex.git --name=mynodejsapss
 --> Found image 03fdd4e (3 months old) in image stream "openshift/python" under tag "3.5" for "openshift/python:3.5"
 
-    Python 3.5 
-    ---------- 
-    Python 3.5 available as docker container is a base platform for building and running various Python 3.5 applications and frameworks. Python is an easy to learn, powerful programming language. It has efficient high-level data structures and a simple but effective approach to object-oriented programming. Python's elegant syntax and dynamic typing, together with its interpreted nature, make it an ideal language for scripting and rapid application development in many areas on most platforms.
+    Node.js 8 
+    --------- 
+    Node.js 8 available as container is a base platform for building and running various Node.js 8 applications and frameworks. Node.js is a platform built on Chrome's JavaScript runtime for easily building fast, scalable network applications. Node.js uses an event-driven, non-blocking I/O model that makes it lightweight and efficient, perfect for data-intensive real-time applications that run across distributed devices.
 
-    Tags: builder, python, python35, rh-python35
+    Tags: builder, nodejs, nodejs8
 
-    * A source build using source code from https://github.com/openshift/django-ex.git will be created
-      * The resulting image will be pushed to image stream "mypythonapps:latest"
+    * A source build using source code from https://github.com/openshift/nodejs-ex.git will be created
+      * The resulting image will be pushed to image stream "mynodejsapss:latest"
       * Use 'start-build' to trigger a new build
-    * This image will be deployed in deployment config "mypythonapps"
-    * Port 8080/tcp will be load balanced by service "mypythonapps"
-      * Other containers can access this service through the hostname "mypythonapps"
+    * This image will be deployed in deployment config "mynodejsapss"
+    * Port 8080/tcp will be load balanced by service "mynodejsapss"
+      * Other containers can access this service through the hostname "mynodejsapss"
 
 --> Creating resources ...
-    imagestream "mypythonapps" created
-    buildconfig "mypythonapps" created
-    deploymentconfig "mypythonapps" created
-    service "mypythonapps" created
+    imagestream "mynodejsapss" created
+    buildconfig "mynodejsapss" created
+    deploymentconfig "mynodejsapss" created
+    service "mynodejsapss" created
 --> Success
-    Build scheduled, use 'oc logs -f bc/mypythonapps' to track its progress.
+    Build scheduled, use 'oc logs -f bc/mynodejsapss' to track its progress.
     Application is not exposed. You can expose services to the outside world by executing one or more of the commands below:
-     'oc expose svc/mypythonapps' 
+     'oc expose svc/mynodejsapss' 
     Run 'oc status' to view your app.
  
 ----
@@ -199,36 +178,22 @@ We can check the status build and deployment here:
 
 ----
 $ oc status
-svc/mypythonapps - 172.30.198.189:8080
-  dc/mypythonapps deploys istag/mypythonapps:latest <-
-    bc/mypythonapps source builds https://github.com/openshift/django-ex.git on openshift/python:3.5 
-      build #1 running for about a minute - 37f7fc4: Merge pull request #115 from hhorak/python-3.6 (Honza Horak <hhorak@redhat.com>)
+svc/mynodejsapss - 172.30.173.202:8080
+  dc/mynodejsapss deploys istag/mynodejsapss:latest <-
+    bc/mynodejsapss source builds https://github.com/openshift/nodejs-ex.git on openshift/nodejs:8 
+      build #1 running for 18 hours - e79929f: Merge pull request #191 from adambkaplan/sclorg-rename (Honza Horak <hhorak@redhat.com>)
     deployment #1 waiting on image or update
 ----
 
 We know that build is started and we can check the build log here:
 
 ----
-$ oc logs bc/mypythonapps
-Cloning "https://github.com/openshift/django-ex.git" ...
-	Commit:	37f7fc41432b9c07265c5896a4fb226caa870427 (Merge pull request #115 from hhorak/python-3.6)
+$ oc logs bc/mynodejsapss
+CCloning "https://github.com/openshift/nodejs-ex.git" ...
+	Commit:	e79929f0b6f22038214879adfc242840d8c694b8 (Merge pull request #191 from adambkaplan/sclorg-rename)
 	Author:	Honza Horak <hhorak@redhat.com>
-	Date:	Tue Apr 24 18:48:25 2018 +0200
----> Installing application source ...
----> Installing dependencies ...
-.....
-Post-processed 'debug_toolbar/css/toolbar.css' as 'debug_toolbar/css/toolbar.b35523ea26ab.css'
-Post-processed 'admin/css/dashboard.css' as 'admin/css/dashboard.7ac78187c567.css'
-78 static files copied to '/opt/app-root/src/staticfiles', 98 post-processed.
-Pushing image 172.30.245.248:5000/yohanes-demo/mypythonapps:latest ...
-Pushed 0/6 layers, 2% complete
-Pushed 1/6 layers, 28% complete
-Pushed 2/6 layers, 49% complete
-Pushed 3/6 layers, 62% complete
-Pushed 4/6 layers, 89% complete
-Pushed 5/6 layers, 100% complete
-Pushed 6/6 layers, 100% complete
-Push successful
+	Date:	Tue Jul 24 18:24:51 2018 +0200
+  ....
 ----
 
 === Create Route
@@ -246,3 +211,37 @@ mypythonapps   mypythonapps-yohanes-demo.apps.rhpds.openshift.opentlc.com       
 ----
 
 Now we can open route url above in browser  http://mypythonapps-yohanes-demo.apps.rhpds.openshift.opentlc.com
+
+=== Add MongoDB Binding
+
+Remember that you created a binding when you deployed the MongoDB database. You now add that binding to your newly created application to provide persistence.
+
+. Click mynodejsapps under the Deployment header to open the deployment configuration for your Node.JS application.
+. Click the Environment tab.
+- This Node.JS application can receive the database configuration via environment variables. Unfortunately the variable names that the application expects are slightly different from the field names in your binding secret. If they were identical you could just bind the whole secret. But they are not, so you need to bind individual fields.
+. Click the Add Value from Config Map or Secret link.
+- his displays a row with a name field, a list of secret names, and a list of values associated with the secret.
+. Create four environment variables (rows) as Below:
+
+[options="header,footer"]
+|========
+|Name|Select a Resource	|Secret Key
+|MONGODB_USER|Select your secret from the pull-down list.|username
+|MONGODB_DATABASE | Select your secret from the pull-down list.|database_name
+|MONGODB_PASSWORD|Select your secret from the pull-down list.|password
+|MONGODB_ADMIN_PASSWORD|Select your secret from the pull-down list.|admin_password
+|========
+
+[start=5]
+. Click Add Value to add a regular environment variable and use DATABASE_SERVICE_NAME as the Name and mongodb as the Value.
+- This enables the example application that you use for this lab to construct the URI itself. Instead of passing the URI from the secret, you pass the service name for your database (mongodb).
+. Click Save to update the deployment configuration with the new environment values.
+. Click Overview in the left-hand panel to go back to the project overview.
+. Observe that the number next to your deployment configuration (mynodejsapps) increased because you changed the configuration.
+- Every time you change a configuration setting, OpenShift creates a new version of the deployment configuration and redeploys the application. This ensures that you can go back to a previous version if the change created a problem.
+. To verify that your application bound successfully to the database, click the route to your application again.
+- Expect to see a section at the bottom right corner, labeled DB Connection Info, with details about your database connection. You can also see that every time you refresh the page, the page view count increases by one.
+
+You have just created a database service from the OpenShift service catalog. You picked an ephemeral service—meaning that it does not persist any data over pod restarts—which is fine for this demonstration.
+
+You also created an application from Node.JS source code in a GitHub repository and bound the database to the application. This enabled the application to use the database without really knowing anything about the implementation details of the database. This database can be in the same project (as in this example), a different project, a different OpenShift cluster, somewhere outside OpenShift but still in your data center, or dynamically provisioned in the cloud. All that the application needs is the connection information and the rest is handled by OpenShift.

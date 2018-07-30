@@ -4,46 +4,34 @@
 
 = Binary Build
 
-There a time when we can't deploy the source code like in Java Application for some case we only have executable binary. Thus, how we can deploy this kind of application in OCP? Worry not in OCP we have feature called Binary To Image. 
-
-For example we have below artifact:
-
-- link:asset\binary\undertow-servlet.jar[An Executable Jar file]
-- An OpenShift Environment running 3.1.1 or later
-- The oc (OpenShift Client) utility 
-
-== Preparation
-
-. Download the jar file link:asset\binary\undertow-servlet.jar[here]
-. Save it to location you choose for example /home/openshift/binary
-
 == Creating OpenShift Build
 
-We need create build for handle openshift binary build with Red Hat OpenJDK xPaaS image as builder
+We need create build for handle openshift binary build with Red Hat DotnetCore xPaaS image as builder
 
 -----
 $ oc login <OPENSHIFT_URL>
-$  oc new-build redhat-openjdk18-openshift:1.2 --name=myjavaapps --binary
---> Found image 56cfa0a (3 months old) in image stream "openshift/redhat-openjdk18-openshift" under tag "1.2" for "redhat-openjdk18-openshift:1.2"
+$ oc new-build openshift/dotnet:2.1 --name=binarydotnet --binary
+--> Found image 1ebf90b (12 days old) in image stream "openshift/dotnet" under tag "2.1" for "openshift/dotnet:2.1"
 
-    Java Applications 
-    ----------------- 
-    Platform for building and running plain Java applications (fat-jar and flat classpath)
+    .NET Core 2.1 
+    ------------- 
+    Platform for building and running .NET Core 2.1 applications
 
-    Tags: builder, java
+    Tags: builder, .net, dotnet, dotnetcore, rh-dotnet21
 
     * A source build using binary input will be created
-      * The resulting image will be pushed to image stream "myjavaapps:latest"
+      * The resulting image will be pushed to image stream "binarydotnet:latest"
       * A binary build was created, use 'start-build --from-dir' to trigger a new build
 
---> Creating resources with label build=myjavaapps ...
-    imagestream "myjavaapps" created
-    buildconfig "myjavaapps" created
+--> Creating resources with label build=binarydotnet2 ...
+    imagestream "binarydotnet" created
+    buildconfig "binarydotnet" created
 --> Success
+
 
 -----
 
-Notice what OpenShift did with our request It created  an imagestream and a buildconfig object, both named myjavaapps. The imagestream will track the new images that get built as part of this new build process, and the buildconfig contains all the instructions that tell OpenShift how to build my app.
+Notice what OpenShift did with our request It created  an imagestream and a buildconfig object, both named binarydotnet. The imagestream will track the new images that get built as part of this new build process, and the buildconfig contains all the instructions that tell OpenShift how to build my app.
 
 
 
@@ -56,38 +44,43 @@ oc start-build <buildconfig-name> --from-dir=<dir-path>.
 ----
 Before we run it though, we want to walk through a few parameters we are going to use. First off, we know that my <buildconfig-name> will be myjavaapps and the <file-path> will be my current warfile-demo directory. 
 
-If we run that command as-is (i.e. oc start-build myjavaapps --from-dir=.) then a build will kick-off, the command will exit, and the build will run in the background. However, in this instance, I would prefer to actually follow the status of the build. To do that, we are going to add the --follow=true (follow the logs of the build) and --wait=true (wait until the build completes to return an exit code).
+If we run that command as-is (i.e. oc start-build mybinarydotnetjavaapps --from-dir=.) then a build will kick-off, the command will exit, and the build will run in the background. However, in this instance, I would prefer to actually follow the status of the build. To do that, we are going to add the --follow=true (follow the logs of the build) and --wait=true (wait until the build completes to return an exit code).
 
 ----
-$ oc start-build myjavaapps --from-file=asset/binary/undertow-servlet.jar  --follow=true --wait
-Uploading file "asset/binary/undertow-servlet.jar" as binary input for the build ...
-build "myjavaapps-1" started
-Receiving source from STDIN as file undertow-servlet.jar
-==================================================================
-Starting S2I Java Build .....
-S2I source build with plain binaries detected
-Copying binaries from /tmp/src to /deployments ...
-... done
-Pushing image 172.30.245.248:5000/yohanes-demo/myjavaapps:latest ...
-Pushed 0/6 layers, 2% complete
-Pushed 1/6 layers, 26% complete
-Pushed 2/6 layers, 43% complete
-Pushed 3/6 layers, 57% complete
-Pushed 4/6 layers, 76% complete
-Pushed 5/6 layers, 93% complete
-Pushed 6/6 layers, 100% complete
+$ oc start-build binarydotnet --from-dir=.  --follow=true --wait
+Uploading directory "." as binary input for the build ...
+build "binarydotnet-3" started
+Receiving source from STDIN as archive ...
+---> Installing application source...
+Using SDK: 2.1.302
+---> Restoring application dependencies...
+Restoring packages for /opt/app-root/src/mydotnetapps.csproj...
+... 
+Generating MSBuild file /opt/app-root/src/obj/mydotnetapps.csproj.nuget.g.props.
+Generating MSBuild file /opt/app-root/src/obj/mydotnetapps.csproj.nuget.g.targets.
+Restore completed in 42.39 sec for /opt/app-root/src/mydotnetapps.csproj.
+---> Publishing application...
+Microsoft (R) Build Engine version 15.7.179.62826 for .NET Core
+Copyright (C) Microsoft Corporation. All rights reserved.
+Restore completed in 51.58 ms for /opt/app-root/src/mydotnetapps.csproj.
+mydotnetapps -> /opt/app-root/src/bin/Release/netcoreapp2.1/mydotnetapps.dll
+mydotnetapps -> /opt/app-root/app/
+Pushing image 172.30.1.1:5000/workshop/binarydotnet:latest ...
+Pushed 4/5 layers, 82% complete
+Pushed 5/5 layers, 100% complete
 Push successful
+
 ----
 
 == Deploy the Application
 
-Now that we have my application image built, we can deploy it. This is very simple. we just run the *oc new-app* command and specify my ImageStream, myjavaapps.
+Now that we have my application image built, we can deploy it. This is very simple. we just run the *oc new-app* command and specify my ImageStream, binarydotnet.
 
 ----
-$ oc new-app myjavaapps
---> Found image f1bc290 (2 minutes old) in image stream "yohanes-demo/myjavaapps" under tag "latest" for "myjavaapps"
+$ oc new-app binarydotnet
+--> Found image f1bc290 (2 minutes old) in image stream "yohanes-demo/binarydotnet" under tag "latest" for "binarydotnet"
 
-    yohanes-demo/myjavaapps-1:d8140b71 
+    yohanes-demo/binarydotnet-1:d8140b71 
     ---------------------------------- 
     Platform for building and running plain Java applications (fat-jar and flat classpath)
 
@@ -98,11 +91,11 @@ $ oc new-app myjavaapps
       * Other containers can access this service through the hostname "myjavaapps"
 
 --> Creating resources ...
-    deploymentconfig "myjavaapps" created
-    service "myjavaapps" created
+    deploymentconfig "binarydotnet" created
+    service "binarydotnet" created
 --> Success
     Application is not exposed. You can expose services to the outside world by executing one or more of the commands below:
-     'oc expose svc/myjavaapps' 
+     'oc expose svc/binarydotnet' 
     Run 'oc status' to view your app.
 ----
 
@@ -119,9 +112,9 @@ http://cakephp-ex-yohanes-demo.apps.rhpds.openshift.opentlc.com to pod port 8080
     deployment #2 deployed 7 hours ago - 1 pod
     deployment #1 failed 7 hours ago: newer deployment was found running
 
-svc/myjavaapps - 172.30.12.188 ports 8080, 8443, 8778
-  dc/myjavaapps deploys istag/myjavaapps:latest <-
-    bc/myjavaapps source builds uploaded code on openshift/redhat-openjdk18-openshift:1.2 
+svc/binarydotnet - 172.30.12.188 ports 8080, 8443, 8778
+  dc/binarydotnet deploys istag/binarydotnet:latest <-
+    bc/binarydotnet source builds uploaded code on openshift/dotnet:2.1
     deployment #1 deployed 18 seconds ago - 1 pod
 ----
 
@@ -136,8 +129,8 @@ $ oc get route
 NAME         HOST/PORT                                                  PATH      SERVICES     PORT       TERMINATION   WILDCARD
 cakephp-ex   cakephp-ex-yohanes-demo.apps.rhpds.openshift.opentlc.com             cakephp-ex   8080-tcp                 None
                None
-myjavaapps   myjavaapps-yohanes-demo.apps.rhpds.openshift.opentlc.com             myjavaapps   8080-tcp                 None
+binarydotnet   binarydotnet-yohanes-demo.apps.rhpds.openshift.opentlc.com             binarydotnet   8080-tcp                 None
                 None
 ----
 
-As we can see here, the oc expose command creates me a route with a hostname. This hostname is resolvable and accessible to me which means that we can now pull up http://myjavaapps-yohanes-demo.apps.rhpds.openshift.opentlc.com in my browser.
+As we can see here, the oc expose command creates me a route with a hostname. This hostname is resolvable and accessible to me which means that we can now pull up http://binarydotnet-yohanes-demo.apps.rhpds.openshift.opentlc.com in my browser.
