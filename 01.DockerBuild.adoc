@@ -8,7 +8,7 @@
 
 "With Docker, developers can build any app in any language using any toolchain. “Dockerized” apps are completely portable and can run anywhere - colleagues’ OS X and Windows laptops, QA servers running Ubuntu in the cloud, and production data center VMs running Red Hat.
 
-Developers can get going quickly by starting with one of the 13,000+ apps available on Docker Hub. Docker manages and tracks changes and dependencies, making it easier for sysadmins to understand how the apps that developers build work. And with Docker Hub, developers can automate their build pipeline and share artifacts with collaborators through public or private repositories.
+Developers can get going quickly by starting with one of the 13,000+ apps available on Docker Hub. Docker manages and tracks changes and dependencies, making it easier for sysadmins to understand how the apps that developers builvd work. And with Docker Hub, developers can automate their build pipeline and share artifacts with collaborators through public or private repositories.
 
 Docker helps developers build and ship higher-quality applications, faster." -- https://www.docker.com/what-docker#copy1[What is Docker]
 
@@ -45,47 +45,32 @@ A registry is a *host* -- a server that stores repositories and provides an HTTP
 
 == Build Container
 
+== Prepare .NET CORE builder
+
+go to command line and login as cluster admin and run command below:
+ 
+----
+$ oc login -u system:admin
+$ oc create -f https://raw.githubusercontent.com/redhat-developer/s2i-dotnetcore/master/dotnet_imagestreams.json -n openshift
+----
+
 === Sample Dockerfile and Creating the project
 
-Create empty aspnet project
+Clone sample application below
 
 ----
-mkdir <your_project_dir>
-dotnet new web
-dotnet restore
-dotnet publish -c release
+$ git clone -b dotnetcore-2.1 https://github.com/redhat-developer/s2i-dotnetcore-ex.git
+$ cd s2i-dotnetcore-ex/app
+$ dotnet restore
+$ dotnet publish -f netcoreapp2.1 -c Release --self-contained false
 ----
 
 We will using below Dockerfile on this lab:
 
 -----
-FROM microsoft/dotnet 
-
-# Set ASPNETCORE_URLS
-ENV ASPNETCORE_URLS=https://*:8080
-
-# Switch to root for changing dir ownership/permissions
-USER 0
-
-# Copy the binaries
-COPY /bin/release/netcoreapp1.1/publish app
-
-# Change to app directory
-WORKDIR app
-
-# In order to drop the root user, we have to make some directories world
-# writable as OpenShift default security model is to run the container under
-# random UID.
-RUN chown -R 1001:0 /app && chmod -R og+rwx /app
-
-# Expose port 8080 for the application.
-EXPOSE 8080
-
-# Run container by default as user with id 1001 (default)
-USER 1001
-
-# Start the application using dotnet!!!
-ENTRYPOINT dotnet aspnet.on.openshift.dll
+FROM dotnet/dotnet-21-runtime-rhel7
+ADD bin/Release/netcoreapp2.1/rhel.7-x64/publish/. .
+CMD [ "dotnet", "app.dll" ]
 -----
 
 Please save above code in file called *Dockerfile* at <your_project_dir>
