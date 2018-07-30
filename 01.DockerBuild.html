@@ -438,7 +438,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </ul>
 </li>
 <li><a href="#_registry_repository">Registry &amp; Repository</a></li>
-<li><a href="#_build_container">Build Container</a>
+<li><a href="#_build_container">Build Container</a></li>
+<li><a href="#_prepare_net_core_builder">Prepare .NET CORE builder</a>
 <ul class="sectlevel2">
 <li><a href="#_sample_dockerfile_and_creating_the_project">Sample Dockerfile and Creating the project</a></li>
 <li><a href="#_build_dockerfile_using_ocp">Build Dockerfile using OCP</a></li>
@@ -455,7 +456,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>"With Docker, developers can build any app in any language using any toolchain. “Dockerized” apps are completely portable and can run anywhere - colleagues’ OS X and Windows laptops, QA servers running Ubuntu in the cloud, and production data center VMs running Red Hat.</p>
 </div>
 <div class="paragraph">
-<p>Developers can get going quickly by starting with one of the 13,000+ apps available on Docker Hub. Docker manages and tracks changes and dependencies, making it easier for sysadmins to understand how the apps that developers build work. And with Docker Hub, developers can automate their build pipeline and share artifacts with collaborators through public or private repositories.</p>
+<p>Developers can get going quickly by starting with one of the 13,000+ apps available on Docker Hub. Docker manages and tracks changes and dependencies, making it easier for sysadmins to understand how the apps that developers builvd work. And with Docker Hub, developers can automate their build pipeline and share artifacts with collaborators through public or private repositories.</p>
 </div>
 <div class="paragraph">
 <p>Docker helps developers build and ship higher-quality applications, faster."&#8201;&#8212;&#8201;<a href="https://www.docker.com/what-docker#copy1">What is Docker</a></p>
@@ -550,6 +551,21 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect1">
 <h2 id="_build_container">Build Container</h2>
 <div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_prepare_net_core_builder">Prepare .NET CORE builder</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>go to command line and login as cluster admin and run command below:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ oc login -u system:admin
+$ oc create -f https://raw.githubusercontent.com/redhat-developer/s2i-dotnetcore/master/dotnet_imagestreams.json -n openshift</pre>
+</div>
+</div>
 <div class="sect2">
 <h3 id="_sample_dockerfile_and_creating_the_project">Sample Dockerfile and Creating the project</h3>
 <div class="paragraph">
@@ -557,10 +573,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>mkdir &lt;your_project_dir&gt;
-dotnet new web
-dotnet restore
-dotnet publish -c release</pre>
+<pre>$ mkdir &lt;your_project_dir&gt;
+$ dotnet new web
+$ dotnet restore -r rhel.7-x64
+$ dotnet publish -f netcoreapp2.1 -c Release -r rhel.7-x64 --self-contained true</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -568,33 +584,11 @@ dotnet publish -c release</pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>FROM microsoft/dotnet
+<pre>FROM registry.access.redhat.com/dotnet/dotnet-21-runtime-rhel7:latest
 
-# Set ASPNETCORE_URLS
-ENV ASPNETCORE_URLS=https://*:8080
+ADD bin/release/netcoreapp2.1/rhel.7-x64/publish/. .
 
-# Switch to root for changing dir ownership/permissions
-USER 0
-
-# Copy the binaries
-COPY /bin/release/netcoreapp1.1/publish app
-
-# Change to app directory
-WORKDIR app
-
-# In order to drop the root user, we have to make some directories world
-# writable as OpenShift default security model is to run the container under
-# random UID.
-RUN chown -R 1001:0 /app &amp;&amp; chmod -R og+rwx /app
-
-# Expose port 8080 for the application.
-EXPOSE 8080
-
-# Run container by default as user with id 1001 (default)
-USER 1001
-
-# Start the application using dotnet!!!
-ENTRYPOINT dotnet aspnet.on.openshift.dll</pre>
+CMD [ "dotnet", "mydotnetapps.dll" ]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -695,7 +689,7 @@ Push successful</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-07-28 20:09:38 WIB
+Last updated 2018-07-30 14:32:00 +08
 </div>
 </div>
 </body>
