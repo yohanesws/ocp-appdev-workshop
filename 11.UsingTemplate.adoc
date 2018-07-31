@@ -6,13 +6,13 @@
 
 == Check Template Code 
 
-Open Template code at https://github.com/yohanesws/openshift-tasks/blob/master/app-template.yaml and review it what happen inside.
+Open Template code at https://github.com/redhat-developer/s2i-dotnetcore/blob/master/templates/dotnet-runtime-example.json and review it what happen inside.
 
 == Deploy Using template
 
 . Open Add to project
 . Choose import YAML/JSON
-. copy content from https://raw.githubusercontent.com/yohanesws/openshift-tasks/master/app-template.yaml
+. copy content from https://raw.githubusercontent.com/redhat-developer/s2i-dotnetcore/master/templates/dotnet-runtime-example.json
 . choose Process the template
 . Click Create 
-. Check In Project Application name "Task" is created based on template.
+. Check In Project Application name "dotnet-runtime-example" is created based on template.
